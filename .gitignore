@@ -1,0 +1,5 @@
+
+*.java
+UserManagement/.mvn/wrapper/maven-wrapper.jar
+UserManagement/mvnw
+UserManagement/mvnw.cmd
