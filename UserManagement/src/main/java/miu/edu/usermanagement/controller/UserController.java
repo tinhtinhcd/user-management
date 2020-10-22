@@ -1,6 +1,7 @@
 package miu.edu.usermanagement.controller;
 
 import miu.edu.usermanagement.dto.RegUser;
+import miu.edu.usermanagement.entity.User;
 import miu.edu.usermanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,15 +25,23 @@ public class UserController {
 
     @PostMapping(value="/user/register")
     public @ResponseBody String registerUser(@Valid @RequestBody RegUser newUser){
-        if(newUser.getUsername() != null){
-            System.out.println("NEW USER: " + newUser.getUsername());
-        }
-        else{
-            return "No user info";
-        }
-        if(userService.addNewUser(newUser) != null){
-            return "Success";
+//        if(newUser.getUsername() != null){
+//            System.out.println("NEW USER: " + newUser.getUsername());
+//        }
+//        else{
+//            return "No user info";
+//        }
+        User retUser = userService.addNewUser(newUser);
+        if(retUser != null){
+            return "" + retUser.getId();
         }
         return "";
+    }
+
+    @GetMapping(value="/user/getByUserName")
+    public @ResponseBody RegUser getUserInfoByUsername(@RequestParam(name="un") String userName){
+        RegUser dtoUser = userService.queryUserByUserName(userName);
+
+        return dtoUser;
     }
 }
