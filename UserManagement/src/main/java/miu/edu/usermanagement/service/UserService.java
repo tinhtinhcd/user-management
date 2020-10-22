@@ -26,7 +26,7 @@ public class UserService {
     public User addNewUser(RegUser newUser){
         User userEntity = mapUserDtoToEntity(newUser);
         Optional<User> userList = userRepo.findUserByUsername(userEntity.getUsername());
-        if(!Optional.of(userList).isPresent())
+        if(!userList.isPresent())
             return null;
         User retUser = userRepo.save(userEntity);
         return retUser;
@@ -36,7 +36,7 @@ public class UserService {
         Optional<User> userList = userRepo.findUserByUsername(userName);
         RegUser dtoUser = null;
         User entityUser = null;
-        if(!Optional.of(userList).isPresent()){
+        if(userList.isPresent()){
             entityUser = userList.get();
             dtoUser = mapUserEntityToDto(entityUser);
         }
