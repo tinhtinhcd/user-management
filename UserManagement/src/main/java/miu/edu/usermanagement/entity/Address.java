@@ -6,15 +6,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+//@Setter
+//@Getter
+//@AllArgsConstructor
+//@NoArgsConstructor
 @Entity
 public class Address {
     @Id
+    @GeneratedValue
     private int id;
     private String houseNumber;
     private String street;
