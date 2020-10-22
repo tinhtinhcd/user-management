@@ -1,5 +1,6 @@
 package miu.edu.usermanagement.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,7 +15,9 @@ public class User {
     @Id
     @GeneratedValue
     private int id;
+    @Column(unique = true)
     private String username;
+    @JsonIgnore
     private String password;
     private String firstName;
     private String lastName;

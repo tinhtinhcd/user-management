@@ -41,7 +41,6 @@ public class UserController {
     @GetMapping(value="/user/getByUserName")
     public @ResponseBody RegUser getUserInfoByUsername(@RequestParam(name="un") String userName){
         RegUser dtoUser = userService.queryUserByUserName(userName);
-
         return dtoUser;
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -24,23 +25,21 @@ public class UserService {
 
     public User addNewUser(RegUser newUser){
         User userEntity = mapUserDtoToEntity(newUser);
-        List<User> userList = userRepo.findUserByUsername(userEntity.getUsername());
-        if(userList != null && userList.size() != 0){
+        Optional<User> userList = userRepo.findUserByUsername(userEntity.getUsername());
+        if(!Optional.of(userList).isPresent())
             return null;
-        }
         User retUser = userRepo.save(userEntity);
         return retUser;
     }
 
     public RegUser queryUserByUserName(String userName){
-        List<User> userList = userRepo.findUserByUsername(userName);
+        Optional<User> userList = userRepo.findUserByUsername(userName);
         RegUser dtoUser = null;
         User entityUser = null;
-        if(userList != null && userList.size() != 0){
-            entityUser = userList.get(0);
+        if(!Optional.of(userList).isPresent()){
+            entityUser = userList.get();
             dtoUser = mapUserEntityToDto(entityUser);
         }
-
         return dtoUser;
     }
 
