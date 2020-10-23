@@ -24,5 +24,7 @@ public class Role extends BaseModel{
     @JoinTable(name = "role_privilege", joinColumns = {
             @JoinColumn(name = "role_id")}, inverseJoinColumns = {
             @JoinColumn(name = "privilege_id")})
+
+    //test
     private List<Privilege> privileges;
 }
