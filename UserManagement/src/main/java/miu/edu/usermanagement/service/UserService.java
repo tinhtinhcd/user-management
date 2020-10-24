@@ -6,10 +6,13 @@ import miu.edu.usermanagement.dto.UserRoleDTO;
 import miu.edu.usermanagement.entity.Address;
 import miu.edu.usermanagement.entity.Role;
 import miu.edu.usermanagement.entity.User;
-import miu.edu.usermanagement.entity.UserRole;
 import miu.edu.usermanagement.repository.UserRepo;
 import miu.edu.usermanagement.repository.RoleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,11 +27,30 @@ public class UserService {
     private UserRepo userRepo;
     private RoleRepo roleRepo;
 
+//    @Autowired
+//    private PasswordEncoder encoding;
+//
+//    //    @Bean(name = "bCryptPasswordEncoder")
+//    @Bean
+//    public PasswordEncoder encoder() {
+//        return new BCryptPasswordEncoder();
+//    }​​​​​
+
+//    private BCryptPasswordEncoder encoder;
+
+//    @Autowired
+//    @Qualifier("bCryptPasswordEncoder")
+//    public void setEncoder(BCryptPasswordEncoder encoder) {​​​​​
+//        this.encoder = encoder;
+//    }​​​​​
+
     @Autowired
     public UserService(UserRepo userRepo, RoleRepo roleRepo){
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
     }
+
+
 
     public User addNewUser(RegUser newUser){
 
@@ -93,7 +115,7 @@ public class UserService {
             dtoRole.setId(role.getId());
             dtoRoles.add(dtoRole);
         }
-        dtoUser.setListRoles(dtoRoles);
+        dtoUser.setRoles(dtoRoles);
 
         return dtoUser;
     }
@@ -102,6 +124,7 @@ public class UserService {
     private User mapUserDtoToEntity(RegUser newUser, boolean bNewUser) {
         User userEntity = new User();
         userEntity.setUsername(newUser.getUsername());
+
         userEntity.setPassword(newUser.getPassword());
         userEntity.setFirstName(newUser.getFirstName());
         userEntity.setLastName(newUser.getLastName());
@@ -129,7 +152,7 @@ public class UserService {
         userEntity.setLstAddress(lstAddr);
 
         List<Role> lRoles = new ArrayList<Role>();
-        List<UserRoleDTO> listDTORoles = newUser.getListRoles();
+        List<UserRoleDTO> listDTORoles = newUser.getRoles();
         List<Long> listRoles = listDTORoles.stream().map(o -> o.getId()).collect(Collectors.toList());
         lRoles = getListEntityRole(listRoles);//getListRoles().stream().filter(o -> listRoles.contains(o.getId())).collect((Collectors.toList()));
 

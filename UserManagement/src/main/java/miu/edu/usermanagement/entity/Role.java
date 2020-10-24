@@ -38,35 +38,35 @@ public class Role extends BaseModel {
 //    }
 
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getLv() {
-        return lv;
-    }
-
-    public void setLv(int lv) {
-        this.lv = lv;
-    }
-
-    public List<Privilege> getPrivileges() {
-        return privileges;
-    }
-
-    public void setPrivileges(List<Privilege> privileges) {
-        this.privileges = privileges;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+//
+//    public int getLv() {
+//        return lv;
+//    }
+//
+//    public void setLv(int lv) {
+//        this.lv = lv;
+//    }
+//
+//    public List<Privilege> getPrivileges() {
+//        return privileges;
+//    }
+//
+//    public void setPrivileges(List<Privilege> privileges) {
+//        this.privileges = privileges;
+//    }
+//
+//    public String getDescription() {
+//        return description;
+//    }
+//
+//    public void setDescription(String description) {
+//        this.description = description;
+//    }
 }

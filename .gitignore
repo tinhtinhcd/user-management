@@ -3,3 +3,10 @@
 UserManagement/.mvn/wrapper/maven-wrapper.jar
 UserManagement/mvnw
 UserManagement/mvnw.cmd
+*.bak
+UserManagement/src/main/resources/application.properties
+*.properties
+*.properties
+UserManagement/src/main/resources/application.properties
+UserManagement/src/main/resources/application.properties
+*.properties
