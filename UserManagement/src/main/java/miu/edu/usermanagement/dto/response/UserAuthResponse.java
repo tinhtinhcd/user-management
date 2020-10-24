@@ -17,4 +17,8 @@ public class UserAuthResponse{
     private String username;
     private String password;
     private List<RoleResponse> roles;
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
