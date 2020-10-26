@@ -136,7 +136,7 @@ public class UserService {
 //        LocalDateTime now = LocalDateTime.now();
 //        System.out.println(curDateTime.format(now));
 
-        userEntity.setCreatedDate(LocalDateTime.now());
+        userEntity.setCreateDate(LocalDateTime.now());
 
         Address addr = new Address();
         addr.setHouseNumber(newUser.getHouseNumber());
@@ -190,11 +190,11 @@ public class UserService {
         return listRoles;
     }
 
-    public String updateUserInfoByUsername(String userName, RegUser dtoUser) {
-        String retMessage = "";
+    public boolean updateUserInfoByUsername(String userName, RegUser dtoUser) {
+        boolean bUpdate = true;
         Optional<User> entityUser = userRepo.findUserByUsername(userName);
         if(!entityUser.isPresent()){
-            retMessage = "The user " + userName + " doesn't exist";
+            bUpdate = false;
         }
         else{
             User user = entityUser.get();
@@ -206,10 +206,9 @@ public class UserService {
 
             //save changes to DB
             userRepo.flush();
-            retMessage = "The user " + userName + " information was updated successfully";
         }
 
-        return retMessage;
+        return bUpdate;
     }
 
     public List<RegUser> getListUsers() {

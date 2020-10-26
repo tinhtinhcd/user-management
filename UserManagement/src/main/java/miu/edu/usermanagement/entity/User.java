@@ -13,10 +13,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends BaseModel{
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
     @Column(unique = true)
     private String username;
     private String password;
@@ -26,7 +26,7 @@ public class User {
     private String phone;
     //Enable/Disable an user
     private boolean status;
-    private LocalDateTime createdDate;
+//    private LocalDateTime createdDate;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name="userId")
     private List<Address> lstAddress;
@@ -40,6 +40,10 @@ public class User {
             @JoinColumn(name = "user_id")}, inverseJoinColumns = {
             @JoinColumn(name = "role_id")})
     private List<Role> roles;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="userId")
+    private List<Card> listCards;
 
 //    public Long getId() {
 //        return id;

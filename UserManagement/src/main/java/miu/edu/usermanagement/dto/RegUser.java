@@ -39,6 +39,8 @@ public class RegUser {
 
     private List<UserRoleDTO> roles;
 
+    private List<CardDTO> cards;
+
 //    public String getUsername() {
 //        return username;
 //    }
