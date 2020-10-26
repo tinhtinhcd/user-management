@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,10 @@ public class User extends BaseModel{
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    private Long id;
     @Column(unique = true)
+    @NotNull
+    @Size(max=10, message = "{error.username.length}")
     private String username;
+
     private String password;
     private String firstName;
     private String lastName;
@@ -30,10 +35,6 @@ public class User extends BaseModel{
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name="userId")
     private List<Address> lstAddress;
-
-//    @OneToMany(cascade = CascadeType.ALL)
-//    @JoinColumn(name="userId")
-//    private List<Role> roles;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_role", joinColumns = {
