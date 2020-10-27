@@ -24,35 +24,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserService implements IUserService{
 
     private UserRepo userRepo;
     private RoleRepo roleRepo;
 
 //    @Autowired
 //    private PasswordEncoder encoding;
-//
-//    //    @Bean(name = "bCryptPasswordEncoder")
-//    @Bean
-//    public PasswordEncoder encoder() {
-//        return new BCryptPasswordEncoder();
-//    }​​​​​
-
-//    private BCryptPasswordEncoder encoder;
-
-//    @Autowired
-//    @Qualifier("bCryptPasswordEncoder")
-//    public void setEncoder(BCryptPasswordEncoder encoder) {​​​​​
-//        this.encoder = encoder;
-//    }​​​​​
 
     @Autowired
     public UserService(UserRepo userRepo, RoleRepo roleRepo){
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
     }
-
-
 
     public User addNewUser(RegUser newUser){
 
