@@ -1,9 +1,11 @@
 package miu.edu.usermanagement.service;
 
+import miu.edu.usermanagement.dto.CardDTO;
 import miu.edu.usermanagement.dto.RegUser;
 import miu.edu.usermanagement.dto.RoleDTO;
 import miu.edu.usermanagement.dto.UserRoleDTO;
 import miu.edu.usermanagement.entity.Address;
+import miu.edu.usermanagement.entity.Card;
 import miu.edu.usermanagement.entity.Role;
 import miu.edu.usermanagement.entity.User;
 import miu.edu.usermanagement.repository.UserRepo;
@@ -22,35 +24,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserService implements IUserService{
 
     private UserRepo userRepo;
     private RoleRepo roleRepo;
 
 //    @Autowired
 //    private PasswordEncoder encoding;
-//
-//    //    @Bean(name = "bCryptPasswordEncoder")
-//    @Bean
-//    public PasswordEncoder encoder() {
-//        return new BCryptPasswordEncoder();
-//    }​​​​​
-
-//    private BCryptPasswordEncoder encoder;
-
-//    @Autowired
-//    @Qualifier("bCryptPasswordEncoder")
-//    public void setEncoder(BCryptPasswordEncoder encoder) {​​​​​
-//        this.encoder = encoder;
-//    }​​​​​
 
     @Autowired
     public UserService(UserRepo userRepo, RoleRepo roleRepo){
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
     }
-
-
 
     public User addNewUser(RegUser newUser){
 
@@ -117,34 +103,64 @@ public class UserService {
         }
         dtoUser.setRoles(dtoRoles);
 
+        List<Card> listCards = entityUser.getListCards();
+        List<CardDTO> dtoCards = new ArrayList<>();
+        for(Card card : listCards) {
+            if (card.isDefault()) {
+                CardDTO dtoCard = new CardDTO();
+                dtoCard.setCardNumber(card.getCardNumber());
+                dtoCard.setType(card.getType());
+                dtoCard.setExpiredDate(card.getExpiredDate());
+                dtoCard.setDefault(card.isDefault());
+                dtoCards.add(dtoCard);
+            }
+        }
+        dtoUser.setCards(dtoCards);
+
         return dtoUser;
     }
 
     //Mapping User object from DTO to Entity
-    private User mapUserDtoToEntity(RegUser newUser, boolean bNewUser) {
+    private User mapUserDtoToEntity(RegUser dtoUser, boolean bNewUser) {
         User userEntity = new User();
-        userEntity.setUsername(newUser.getUsername());
+        userEntity.setUsername(dtoUser.getUsername());
 
-        userEntity.setPassword(newUser.getPassword());
-        userEntity.setFirstName(newUser.getFirstName());
-        userEntity.setLastName(newUser.getLastName());
-        userEntity.setEmail(newUser.getEmail());
-        userEntity.setPhone(newUser.getPhone());
+        if(bNewUser) {
+            //encrypt password
+            BCryptPasswordEncoder encoding = new BCryptPasswordEncoder(16);
+            String encodedPass = encoding.encode(dtoUser.getPassword());
+            userEntity.setPassword(encodedPass);
+
+            //try to decrypt
+            String checkedPass = dtoUser.getPassword();
+            if (!encoding.matches(checkedPass, encodedPass)) {
+                //The encoding is wrong
+                return null;
+            }
+        }
+        else{
+            userEntity.setPassword(dtoUser.getPassword());
+        }
+
+        userEntity.setFirstName(dtoUser.getFirstName());
+        userEntity.setLastName(dtoUser.getLastName());
+        userEntity.setEmail(dtoUser.getEmail());
+        userEntity.setPhone(dtoUser.getPhone());
         userEntity.setStatus(bNewUser);
 
 //        DateTimeFormatter curDateTime = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 //        LocalDateTime now = LocalDateTime.now();
 //        System.out.println(curDateTime.format(now));
 
-        userEntity.setCreatedDate(LocalDateTime.now());
+        userEntity.setCreateDate(LocalDateTime.now());
 
         Address addr = new Address();
-        addr.setHouseNumber(newUser.getHouseNumber());
-        addr.setStreet(newUser.getStreet());
-        addr.setCity(newUser.getCity());
-        addr.setZipcode(newUser.getZipcode());
-        addr.setState(newUser.getState());
-        addr.setCountry(newUser.getCountry());
+        addr.setHouseNumber(dtoUser.getHouseNumber());
+        addr.setStreet(dtoUser.getStreet());
+        addr.setCity(dtoUser.getCity());
+        addr.setZipcode(dtoUser.getZipcode());
+        addr.setState(dtoUser.getState());
+        addr.setCountry(dtoUser.getCountry());
         addr.setDefault(bNewUser);
 
         List<Address> lstAddr = new ArrayList<Address>();
@@ -152,7 +168,7 @@ public class UserService {
         userEntity.setLstAddress(lstAddr);
 
         List<Role> lRoles = new ArrayList<Role>();
-        List<UserRoleDTO> listDTORoles = newUser.getRoles();
+        List<UserRoleDTO> listDTORoles = dtoUser.getRoles();
         List<Long> listRoles = listDTORoles.stream().map(o -> o.getId()).collect(Collectors.toList());
         lRoles = getListEntityRole(listRoles);//getListRoles().stream().filter(o -> listRoles.contains(o.getId())).collect((Collectors.toList()));
 
@@ -190,11 +206,11 @@ public class UserService {
         return listRoles;
     }
 
-    public String updateUserInfoByUsername(String userName, RegUser dtoUser) {
-        String retMessage = "";
+    public boolean updateUserInfoByUsername(String userName, RegUser dtoUser) {
+        boolean bUpdate = true;
         Optional<User> entityUser = userRepo.findUserByUsername(userName);
         if(!entityUser.isPresent()){
-            retMessage = "The user " + userName + " doesn't exist";
+            bUpdate = false;
         }
         else{
             User user = entityUser.get();
@@ -206,10 +222,9 @@ public class UserService {
 
             //save changes to DB
             userRepo.flush();
-            retMessage = "The user " + userName + " information was updated successfully";
         }
 
-        return retMessage;
+        return bUpdate;
     }
 
     public List<RegUser> getListUsers() {

@@ -1,4 +1,4 @@
 package miu.edu.usermanagement.service;
 
-public class RoleService {
+public class RoleService implements IRoleService {
 }

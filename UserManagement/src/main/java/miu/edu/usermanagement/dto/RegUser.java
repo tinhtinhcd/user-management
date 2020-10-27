@@ -14,7 +14,7 @@ public class RegUser {
     @Size(max=10)
     private String username;
     @NotNull
-    @Size(max=10)
+    @Size(min=8)
     private String password;
     @Size(max=20)
     private String firstName;
@@ -38,6 +38,8 @@ public class RegUser {
     private String country;
 
     private List<UserRoleDTO> roles;
+
+    private List<CardDTO> cards;
 
 //    public String getUsername() {
 //        return username;
