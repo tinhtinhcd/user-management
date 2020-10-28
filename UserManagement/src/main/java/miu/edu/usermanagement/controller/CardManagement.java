@@ -17,14 +17,13 @@ import java.util.Locale;
 public class CardManagement {
     private CardService cardService;
     private UserService userService;
-
-    @Autowired
     private MessageSource messageSource;
 
     @Autowired
-    public CardManagement(CardService cardService, UserService userService){
+    public CardManagement(CardService cardService, UserService userService, MessageSource messageSource) {
         this.cardService = cardService;
         this.userService = userService;
+        this.messageSource = messageSource;
     }
 
     @PostMapping(value = "api/card/add")
@@ -39,7 +38,7 @@ public class CardManagement {
         return cardService.getCardInfo(userName, cardNumber);
     }
 
-    @RequestMapping(value = "api/card/list")
+    @GetMapping(value = "api/card/list")
     public @ResponseBody List<CardDTO> listAllCards(@RequestParam(name = "un") String userName){
         RegUser dtoUser = userService.queryUserByUserName(userName);
         if(dtoUser != null) {

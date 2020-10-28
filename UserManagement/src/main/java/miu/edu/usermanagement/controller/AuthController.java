@@ -21,7 +21,7 @@ public class AuthController {
         this.userAuthService = userAuthService;
     }
 
-    @GetMapping(value="/user/{username}")
+    @GetMapping(value="user/{username}")
     public ResponseEntity<UserAuthResponse> getUserInfoByUsername(@PathVariable String username){
         UserAuthResponse response = userAuthService.findUserByUsername(username);
         return new ResponseEntity<>(response, HttpStatus.OK);
