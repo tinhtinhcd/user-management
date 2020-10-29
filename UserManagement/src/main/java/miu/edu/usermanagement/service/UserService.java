@@ -1,9 +1,6 @@
 package miu.edu.usermanagement.service;
 
-import miu.edu.usermanagement.dto.CardDTO;
-import miu.edu.usermanagement.dto.RegUser;
-import miu.edu.usermanagement.dto.RoleDTO;
-import miu.edu.usermanagement.dto.UserRoleDTO;
+import miu.edu.usermanagement.dto.*;
 import miu.edu.usermanagement.entity.Address;
 import miu.edu.usermanagement.entity.Card;
 import miu.edu.usermanagement.entity.Role;
@@ -11,10 +8,7 @@ import miu.edu.usermanagement.entity.User;
 import miu.edu.usermanagement.repository.UserRepo;
 import miu.edu.usermanagement.repository.RoleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,8 +23,9 @@ public class UserService implements IUserService{
     private UserRepo userRepo;
     private RoleRepo roleRepo;
 
-//    @Autowired
 //    private PasswordEncoder encoding;
+    @Autowired
+    private BCryptPasswordEncoder encoding;
 
     @Autowired
     public UserService(UserRepo userRepo, RoleRepo roleRepo){
@@ -38,22 +33,25 @@ public class UserService implements IUserService{
         this.roleRepo = roleRepo;
     }
 
+    @Override
     public User addNewUser(RegUser newUser){
 
         User retUser = null;
         Optional<User> user = userRepo.findUserByUsername(newUser.getUsername());
 
         if(!user.isPresent()) {
-            User userEntity = mapUserDtoToEntity(newUser, true);
+            User userEntity = new User();
+            mapNewUserDtoToEntity(newUser, userEntity,true);
             retUser = userRepo.save(userEntity);
         }
 
         return retUser;
     }
 
-    public RegUser queryUserByUserName(String userName){
+    @Override
+    public UserDTO queryUserByUserName(String userName){
         Optional<User> userList = userRepo.findUserByUsername(userName);
-        RegUser dtoUser = null;
+        UserDTO dtoUser = null;
         User entityUser = null;
         if(userList.isPresent()){
             entityUser = userList.get();
@@ -63,10 +61,29 @@ public class UserService implements IUserService{
     }
 
     //Mapping User object from Entity to DTO
-    private RegUser mapUserEntityToDto(User entityUser) {
-        RegUser dtoUser = new RegUser();
+    private void mapNewUserEntityToDTO(User entityUser, RegUser dtoUser){
+
         dtoUser.setUsername(entityUser.getUsername());
         dtoUser.setPassword(entityUser.getPassword());
+
+        List<UserRoleDTO> dtoRoles = new ArrayList<>();
+        List<Role> listRoles = entityUser.getRoles();
+        for(Role role : listRoles){
+            UserRoleDTO dtoRole = new UserRoleDTO();
+            dtoRole.setId(role.getId());
+            dtoRoles.add(dtoRole);
+        }
+        dtoUser.setRoles(dtoRoles);
+    }
+
+    private UserDTO mapUserEntityToDto(User entityUser) {
+        UserDTO dtoUser = new UserDTO();
+        if(entityUser.getId() != null) {
+            dtoUser.setId(entityUser.getId());
+        }
+        if(entityUser.getUsername() != null) {
+            dtoUser.setUsername(entityUser.getUsername());
+        }
         dtoUser.setFirstName(entityUser.getFirstName());
         dtoUser.setLastName(entityUser.getLastName());
         dtoUser.setEmail(entityUser.getEmail());
@@ -86,6 +103,7 @@ public class UserService implements IUserService{
         }
 
         if(address != null){
+            dtoUser.setAddressId(address.getId());
             dtoUser.setHouseNumber(address.getHouseNumber());
             dtoUser.setStreet(address.getStreet());
             dtoUser.setCity(address.getCity());
@@ -121,38 +139,60 @@ public class UserService implements IUserService{
     }
 
     //Mapping User object from DTO to Entity
-    private User mapUserDtoToEntity(RegUser dtoUser, boolean bNewUser) {
-        User userEntity = new User();
-        userEntity.setUsername(dtoUser.getUsername());
-
+    private void mapNewUserDtoToEntity(RegUser dtoUser, User entityUser, boolean bNewUser){
+        entityUser.setUsername(dtoUser.getUsername());
         if(bNewUser) {
-            //encrypt password
-            BCryptPasswordEncoder encoding = new BCryptPasswordEncoder(16);
-            String encodedPass = encoding.encode(dtoUser.getPassword());
-            userEntity.setPassword(encodedPass);
-
-            //try to decrypt
-            String checkedPass = dtoUser.getPassword();
-            if (!encoding.matches(checkedPass, encodedPass)) {
-                //The encoding is wrong
-                return null;
-            }
+            entityUser.setPassword(encoding.encode(dtoUser.getPassword()));
         }
         else{
-            userEntity.setPassword(dtoUser.getPassword());
+            entityUser.setPassword(dtoUser.getPassword());
         }
+        List<Role> lRoles = new ArrayList<Role>();
+        List<UserRoleDTO> listDTORoles = dtoUser.getRoles();
+        List<Long> listRoles = listDTORoles.stream().map(o -> o.getId()).collect(Collectors.toList());
+        lRoles = getListEntityRole(listRoles);
+        entityUser.setRoles(lRoles);
+
+        entityUser.setCreateDate(LocalDateTime.now());
+
+        if(bNewUser) {
+            entityUser.setStatus(bNewUser);
+        }
+    }
+
+    private User mapUserDtoToEntity(UserDTO dtoUser){//}, boolean bNewUser) {
+        User userEntity = new User();
+
+//        userEntity.setUsername(dtoUser.getUsername());
+
+//        if(bNewUser) {
+//            //encrypt password
+////            BCryptPasswordEncoder encoding = new BCryptPasswordEncoder(16);
+////            String encodedPass = encoding.encode(dtoUser.getPassword());
+////            userEntity.setPassword(encodedPass);
+////
+////            //try to decrypt
+////            String checkedPass = dtoUser.getPassword();
+////            if (!encoding.matches(checkedPass, encodedPass)) {
+////                //The encoding is wrong
+////                return null;
+////            }
+//        }
+//        else{
+//            userEntity.setPassword(dtoUser.getPassword());
+//        }
 
         userEntity.setFirstName(dtoUser.getFirstName());
         userEntity.setLastName(dtoUser.getLastName());
         userEntity.setEmail(dtoUser.getEmail());
         userEntity.setPhone(dtoUser.getPhone());
-        userEntity.setStatus(bNewUser);
+//        userEntity.setStatus(bNewUser);
 
 //        DateTimeFormatter curDateTime = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 //        LocalDateTime now = LocalDateTime.now();
 //        System.out.println(curDateTime.format(now));
 
-        userEntity.setCreateDate(LocalDateTime.now());
+//        userEntity.setCreateDate(LocalDateTime.now());
 
         Address addr = new Address();
         addr.setHouseNumber(dtoUser.getHouseNumber());
@@ -161,7 +201,7 @@ public class UserService implements IUserService{
         addr.setZipcode(dtoUser.getZipcode());
         addr.setState(dtoUser.getState());
         addr.setCountry(dtoUser.getCountry());
-        addr.setDefault(bNewUser);
+//        addr.setDefault(bNewUser);
 
         List<Address> lstAddr = new ArrayList<Address>();
         lstAddr.add(addr);
@@ -190,6 +230,7 @@ public class UserService implements IUserService{
         return lRole;
     }
 
+    @Override
     public List<RoleDTO> getListRoles() {
         List<RoleDTO> listRoles = new ArrayList<>();
 
@@ -206,7 +247,8 @@ public class UserService implements IUserService{
         return listRoles;
     }
 
-    public boolean updateUserInfoByUsername(String userName, RegUser dtoUser) {
+    @Override
+    public boolean updateUserInfoByUsername(String userName, UserDTO dtoUser) {
         boolean bUpdate = true;
         Optional<User> entityUser = userRepo.findUserByUsername(userName);
         if(!entityUser.isPresent()){
@@ -215,25 +257,140 @@ public class UserService implements IUserService{
         else{
             User user = entityUser.get();
             //Update changes to the current user object in the context
-            user.setFirstName(dtoUser.getFirstName());
-            user.setLastName(dtoUser.getLastName());
-            //TODO Add other fields here
-            //....
+            if(dtoUser.getFirstName() != null) {
+                user.setFirstName(dtoUser.getFirstName());
+            }
+            if(dtoUser.getLastName() != null){
+                user.setLastName(dtoUser.getLastName());
+            }
+            if(dtoUser.getEmail() != null){
+                user.setEmail(dtoUser.getEmail());
+            }
+            if(dtoUser.getPhone() != null){
+                user.setPhone(dtoUser.getPhone());
+            }
 
-            //save changes to DB
-            userRepo.flush();
+            List<Address> listAddress = user.getLstAddress();
+            if(listAddress.size() == 0){
+                Address addr = new Address();
+                listAddress = new ArrayList<>();
+                listAddress.add(addr);
+                addr.setDefault(true);
+                user.setLstAddress(listAddress);
+            }
+
+            //update address: if id is specified, relevant address is updated, otherwise the default address is updated
+            Address addr = null;
+            if(dtoUser.getAddressId() != null){
+                Optional<Address> opAddr = listAddress.stream().filter(a -> a.getId() == dtoUser.getAddressId()).findFirst();
+                if (opAddr.isPresent()) {
+                    addr = opAddr.get();
+                }
+                else {//no exist the specified address id
+                    bUpdate = false;
+                }
+            }
+            else { // no address id is specified --> just update the address info to the default address
+                Optional<Address> opAddr = listAddress.stream().filter(a -> a.isDefault() == true).findFirst();
+                if(opAddr.isPresent()){
+                    addr = opAddr.get();
+                }
+                else{// no default address --> pick the first one and set it as default
+                    addr = listAddress.get(0);
+                    addr.setDefault(true);
+                }
+            }
+
+            if(bUpdate) {
+                if (dtoUser.getHouseNumber() != null) {
+                    addr.setHouseNumber(dtoUser.getHouseNumber());
+                }
+                if (dtoUser.getStreet() != null) {
+                    addr.setStreet(dtoUser.getStreet());
+                }
+                if (dtoUser.getCity() != null) {
+                    addr.setCity(dtoUser.getCity());
+                }
+                if (dtoUser.getState() != null) {
+                    addr.setState(dtoUser.getState());
+                }
+                if (dtoUser.getZipcode() != null) {
+                    addr.setZipcode(dtoUser.getZipcode());
+                }
+                if (dtoUser.getCountry() != null) {
+                    addr.setCountry(dtoUser.getCountry());
+                }
+
+                //Update roles
+                List<UserRoleDTO> listDtoRoles = dtoUser.getRoles();
+                if(listDtoRoles != null && listDtoRoles.size() != 0){
+                    List<Role> lRoles = user.getRoles();
+                    //Empty the list of roles for adding new ones
+                    while(lRoles.size() > 0){
+                        lRoles.remove(0);
+                    }
+
+                    //TODO: Duplicated this code --> should make a common function
+                    List<Long> listRoleIDs = listDtoRoles.stream().map(o -> o.getId()).collect(Collectors.toList());
+                    lRoles = getListEntityRole(listRoleIDs);
+
+                    user.setRoles(lRoles);
+                }
+
+                //save changes to DB
+                userRepo.flush();
+            }
         }
 
         return bUpdate;
     }
 
+    @Override
     public List<RegUser> getListUsers() {
         List<RegUser> retListUser = new ArrayList<>();
 
         List<User> listUser = userRepo.findAll();
         if(listUser != null && listUser.size() != 0){
             for(User user : listUser){
-                RegUser dtoUser = mapUserEntityToDto(user);
+                RegUser dtoUser = new RegUser();
+                mapNewUserEntityToDTO(user, dtoUser);
+                retListUser.add(dtoUser);
+            }
+        }
+
+        return retListUser;
+    }
+
+    @Override
+    public List<UserDTO> getListUserInfo() {
+        List<UserDTO> retListUser = new ArrayList<>();
+
+        List<User> listUser = userRepo.findAll();
+        if(listUser != null && listUser.size() != 0){
+            for(User user : listUser){
+                UserDTO dtoUser = new UserDTO();
+                dtoUser = mapUserEntityToDto(user);
+                retListUser.add(dtoUser);
+            }
+        }
+
+        return retListUser;
+    }
+
+    @Override
+    public List<UserDTO> getListUserInfoByIDs(List<UserIdDTO> listUserIDs) {
+        List<UserDTO> retListUser = new ArrayList<>();
+
+        List<Integer> listIDs = listUserIDs.stream().map(u -> u.getId()).collect(Collectors.toList());
+//        for(UserIdDTO userID : listUserIDs){
+//            userRepo.findById(userID.getId());
+//        }
+
+        List<User> listUser = userRepo.findAllById(listIDs);
+        if(listUser != null && listUser.size() != 0){
+            for(User user : listUser){
+                UserDTO dtoUser = new UserDTO();
+                dtoUser = mapUserEntityToDto(user);
                 retListUser.add(dtoUser);
             }
         }
