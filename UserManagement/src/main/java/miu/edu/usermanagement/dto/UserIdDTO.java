@@ -11,5 +11,5 @@ import javax.persistence.Column;
 @NoArgsConstructor
 public class UserIdDTO {
     @Column(nullable = true)
-    private Integer id;
+    private Long id;
 }

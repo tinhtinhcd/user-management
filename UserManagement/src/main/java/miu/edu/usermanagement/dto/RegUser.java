@@ -12,11 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 public class RegUser {
 
-    @NotNull
-    @Size(max=10, message = "{error.username.length}")
+    @NotNull(message = "{error.field.notnull}")
+    @Size(max=10, message = "{error.length.max}")
     private String username;
-    @NotNull
-    @Size(min=8, message = "{error.password.length}")
+    @NotNull(message = "{error.field.notnull}")
+    @Size(min=8, message = "{error.length.min}")
 //    @JsonIgnore
     private String password;
 

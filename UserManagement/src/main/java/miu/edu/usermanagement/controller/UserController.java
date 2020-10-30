@@ -43,7 +43,7 @@ public class UserController {
 //    }
 
     @PostMapping(value="/user/register", produces="application/json")
-    public @ResponseBody String registerUser(@Valid @RequestBody RegUser newUser){//}, BindingResult result){
+    public @ResponseBody User registerUser(@Valid @RequestBody RegUser newUser){//}, BindingResult result){
 
 //        if(result.hasErrors()){
 //            //return validation errors
@@ -51,10 +51,11 @@ public class UserController {
 //        }
 
         User retUser = userService.addNewUser(newUser);
-        if(retUser != null){
-            return messageSource.getMessage("user.new.success", new String[]{newUser.getUsername()}, Locale.US);
-        }
-        return messageSource.getMessage("user.new.fail", new String[]{newUser.getUsername()}, Locale.US);
+        return retUser;
+//        if(retUser != null){
+//            return messageSource.getMessage("user.new.success", new String[]{newUser.getUsername()}, Locale.US);
+//        }
+//        return messageSource.getMessage("user.new.fail", new String[]{newUser.getUsername()}, Locale.US);
     }
 
     @GetMapping(value="api/user/getByUserName")
@@ -70,9 +71,9 @@ public class UserController {
         if(userService.updateUserInfoByUsername(userName, dtoUser)){
             retMessage = messageSource.getMessage("user.update.success", new String[]{userName}, Locale.US);
         }
-        else{
-            retMessage = messageSource.getMessage("user.update.fail", new String[]{userName}, Locale.US);
-        }
+//        else{
+//            retMessage = messageSource.getMessage("user.update.fail", new String[]{userName}, Locale.US);
+//        }
         return retMessage;
     }
 

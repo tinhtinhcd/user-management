@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRoleDTO {
-    @NotNull
+    @NotNull(message = "{error.field.notnull}")
     private long id;
 
 }

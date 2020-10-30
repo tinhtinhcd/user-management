@@ -31,10 +31,11 @@ public class UserManagementConfigurer implements WebMvcConfigurer {
         return messageSource;
     }
 
-//    @Bean
-//    public LocalValidatorFactoryBean validator() {
-//        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
-//        bean.setValidationMessageSource(messageSource());
-//        return bean;
-//    }
+    //To use custom name messages in a properties file like we need to define a LocalValidatorFactoryBean and register the messageSource
+    @Bean
+    public LocalValidatorFactoryBean validator() {
+        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+        bean.setValidationMessageSource(messageSource());
+        return bean;
+    }
 }

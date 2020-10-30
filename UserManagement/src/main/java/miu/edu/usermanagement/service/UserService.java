@@ -5,6 +5,9 @@ import miu.edu.usermanagement.entity.Address;
 import miu.edu.usermanagement.entity.Card;
 import miu.edu.usermanagement.entity.Role;
 import miu.edu.usermanagement.entity.User;
+import miu.edu.usermanagement.exception.AddressNotFoundException;
+import miu.edu.usermanagement.exception.UsernameExistedException;
+import miu.edu.usermanagement.exception.UsernameNotFoundException;
 import miu.edu.usermanagement.repository.UserRepo;
 import miu.edu.usermanagement.repository.RoleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,9 @@ public class UserService implements IUserService{
             mapNewUserDtoToEntity(newUser, userEntity,true);
             retUser = userRepo.save(userEntity);
         }
+        else{
+            throw new UsernameExistedException(newUser.getUsername());
+        }
 
         return retUser;
     }
@@ -56,6 +62,9 @@ public class UserService implements IUserService{
         if(userList.isPresent()){
             entityUser = userList.get();
             dtoUser = mapUserEntityToDto(entityUser);
+        }
+        else{
+            throw new UsernameNotFoundException(userName);
         }
         return dtoUser;
     }
@@ -252,7 +261,7 @@ public class UserService implements IUserService{
         boolean bUpdate = true;
         Optional<User> entityUser = userRepo.findUserByUsername(userName);
         if(!entityUser.isPresent()){
-            bUpdate = false;
+            throw new UsernameNotFoundException(userName);
         }
         else{
             User user = entityUser.get();
@@ -287,7 +296,8 @@ public class UserService implements IUserService{
                     addr = opAddr.get();
                 }
                 else {//no exist the specified address id
-                    bUpdate = false;
+                    throw new AddressNotFoundException(dtoUser.getAddressId());
+//                    bUpdate = false;
                 }
             }
             else { // no address id is specified --> just update the address info to the default address
@@ -381,12 +391,9 @@ public class UserService implements IUserService{
     public List<UserDTO> getListUserInfoByIDs(List<UserIdDTO> listUserIDs) {
         List<UserDTO> retListUser = new ArrayList<>();
 
-        List<Integer> listIDs = listUserIDs.stream().map(u -> u.getId()).collect(Collectors.toList());
-//        for(UserIdDTO userID : listUserIDs){
-//            userRepo.findById(userID.getId());
-//        }
+        List<Long> listIDs = listUserIDs.stream().map(u -> u.getId()).collect(Collectors.toList());
 
-        List<User> listUser = userRepo.findAllById(listIDs);
+        List<User> listUser = userRepo.findByIdIn(listIDs);
         if(listUser != null && listUser.size() != 0){
             for(User user : listUser){
                 UserDTO dtoUser = new UserDTO();
