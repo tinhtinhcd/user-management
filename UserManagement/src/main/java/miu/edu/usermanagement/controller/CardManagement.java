@@ -1,7 +1,7 @@
 package miu.edu.usermanagement.controller;
 
 import miu.edu.usermanagement.dto.CardDTO;
-import miu.edu.usermanagement.dto.RegUser;
+import miu.edu.usermanagement.dto.UserDTO;
 import miu.edu.usermanagement.service.CardService;
 import miu.edu.usermanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class CardManagement {
     private MessageSource messageSource;
 
     @Autowired
-    public CardManagement(CardService cardService, UserService userService, MessageSource messageSource) {
+    public CardManagement(CardService cardService, UserService userService, MessageSource messageSource){
         this.cardService = cardService;
         this.userService = userService;
         this.messageSource = messageSource;
@@ -40,7 +40,7 @@ public class CardManagement {
 
     @GetMapping(value = "api/card/list")
     public @ResponseBody List<CardDTO> listAllCards(@RequestParam(name = "un") String userName){
-        RegUser dtoUser = userService.queryUserByUserName(userName);
+        UserDTO dtoUser = userService.queryUserByUserName(userName);
         if(dtoUser != null) {
             return dtoUser.getCards();
         }

@@ -2,13 +2,15 @@ package miu.edu.usermanagement.controller;
 
 import miu.edu.usermanagement.dto.RegUser;
 import miu.edu.usermanagement.dto.RoleDTO;
+import miu.edu.usermanagement.dto.UserDTO;
+import miu.edu.usermanagement.dto.UserIdDTO;
 import miu.edu.usermanagement.entity.User;
 import miu.edu.usermanagement.service.UserService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,13 +36,18 @@ public class UserController {
         return "Hello API";
     }
 
-    @PostMapping(value="/user/register", produces="application/json")
-    public @ResponseBody String registerUser(@Valid @RequestBody RegUser newUser, BindingResult result){
+//    @GetMapping("/api")
+//    public ResponseEntity<String> testAPI(){
+//        return new ResponseEntity<>("Hello API", HttpStatus.OK);
+//    }
 
-        if(result.hasErrors()){
-            //return validation errors
-            return messageSource.getMessage("user.validate.error", null, Locale.US);//"Invalid input data";
-        }
+    @PostMapping(value="/user/register", produces="application/json")
+    public @ResponseBody String registerUser(@Valid @RequestBody RegUser newUser){//}, BindingResult result){
+
+//        if(result.hasErrors()){
+//            //return validation errors
+//            return messageSource.getMessage("user.validate.error", null, Locale.US);//"Invalid input data";
+//        }
 
         User retUser = userService.addNewUser(newUser);
         if(retUser != null){
@@ -50,14 +57,14 @@ public class UserController {
     }
 
     @GetMapping(value="api/user/getByUserName")
-    public @ResponseBody RegUser getUserInfoByUsername(@RequestParam(name="un") String userName){
-        RegUser dtoUser = userService.queryUserByUserName(userName);
+    public @ResponseBody UserDTO getUserInfoByUsername(@RequestParam(name="un") String userName){
+        UserDTO dtoUser = userService.queryUserByUserName(userName);
 
         return dtoUser;
     }
 
     @PostMapping(value="api/user/updateUser")
-    public @ResponseBody String updateUser(@RequestParam(name="un") String userName, @Valid @RequestBody RegUser dtoUser){
+    public @ResponseBody String updateUser(@RequestParam(name="un") String userName, @Valid @RequestBody UserDTO dtoUser){
         String retMessage = "";
         if(userService.updateUserInfoByUsername(userName, dtoUser)){
             retMessage = messageSource.getMessage("user.update.success", new String[]{userName}, Locale.US);
@@ -69,9 +76,16 @@ public class UserController {
     }
 
     @GetMapping(value="api/user/list")
-    public @ResponseBody List<RegUser> listOfUsers(){
+    public @ResponseBody List<UserDTO> listOfUsers(){
 
-        List<RegUser> listUsers = userService.getListUsers();
+        List<UserDTO> listUsers = userService.getListUserInfo();
+        return listUsers;
+    }
+
+    @GetMapping(value="api/user/listByIDs")
+    public @ResponseBody List<UserDTO> listOfUserIDs(@RequestBody List<UserIdDTO> listUserIDs){
+
+        List<UserDTO> listUsers = userService.getListUserInfoByIDs(listUserIDs);
         return listUsers;
     }
 
