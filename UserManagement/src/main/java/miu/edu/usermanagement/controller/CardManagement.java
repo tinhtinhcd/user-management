@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 
+@CrossOrigin(maxAge = 3600)
 @RestController
 public class CardManagement {
     private CardService cardService;

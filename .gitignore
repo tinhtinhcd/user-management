@@ -11,3 +11,4 @@ UserManagement/src/main/resources/application.properties
 UserManagement/src/main/resources/application.properties
 *.properties
 UserManagement/create.sql
+UserManagement/usermanagement.iml
