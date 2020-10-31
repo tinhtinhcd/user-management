@@ -247,3 +247,11 @@ UserManagement/target/classes/miu/edu/usermanagement/UserManagementConfigurer.cl
 UserManagement/target/test-classes/miu/edu/usermanagement/UsermanagementApplicationTests.class
 UserManagement/usermanagement.iml
 UserManagement/src/main/resources/application.properties
+UserManagement/src/main/java/miu/edu/usermanagement/UserManagementConfigurer.java
+UserManagement/usermanagement.iml
+UserManagement/target/generated-sources/annotations/miu/edu/usermanagement/mapper/UserMapperImpl.java
+UserManagement/target/generated-sources/annotations/miu/edu/usermanagement/mapper/RoleMapperImpl.java
+UserManagement/target/generated-sources/annotations/miu/edu/usermanagement/mapper/PrivilegeMapperImpl.java
+UserManagement/target/classes/miu/edu/usermanagement/dto/AddressDTO.class
+UserManagement/target/classes/miu/edu/usermanagement/config/UserManagementConfigurer.class
+UserManagement/target/classes/miu/edu/usermanagement/config/SwaggerConfig.class
