@@ -8,6 +8,7 @@ import miu.edu.usermanagement.entity.User;
 import miu.edu.usermanagement.exception.AddressNotFoundException;
 import miu.edu.usermanagement.exception.UsernameExistedException;
 import miu.edu.usermanagement.exception.UsernameNotFoundException;
+import miu.edu.usermanagement.repository.AddressRepo;
 import miu.edu.usermanagement.repository.UserRepo;
 import miu.edu.usermanagement.repository.RoleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +26,17 @@ public class UserService implements IUserService{
 
     private UserRepo userRepo;
     private RoleRepo roleRepo;
+    private AddressRepo addressRepo;
 
 //    private PasswordEncoder encoding;
     @Autowired
     private BCryptPasswordEncoder encoding;
 
     @Autowired
-    public UserService(UserRepo userRepo, RoleRepo roleRepo){
+    public UserService(UserRepo userRepo, RoleRepo roleRepo, AddressRepo addressRepo){
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
+        this.addressRepo = addressRepo;
     }
 
     @Override
@@ -388,10 +391,8 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public List<UserDTO> getListUserInfoByIDs(List<UserIdDTO> listUserIDs) {
+    public List<UserDTO> getListUserInfoByIDs(List<Long> listIDs) {
         List<UserDTO> retListUser = new ArrayList<>();
-
-        List<Long> listIDs = listUserIDs.stream().map(u -> u.getId()).collect(Collectors.toList());
 
         List<User> listUser = userRepo.findByIdIn(listIDs);
         if(listUser != null && listUser.size() != 0){
@@ -404,4 +405,106 @@ public class UserService implements IUserService{
 
         return retListUser;
     }
+
+    @Override
+    public boolean addAddressByUsername(String userName, UserDTO dtoUser) {
+        Optional<User> opUser = userRepo.findUserByUsername(userName);
+        User user = null;
+        if(opUser.isPresent()){
+            user = opUser.get();
+            List<Address> listAddress = user.getLstAddress();
+            if(listAddress == null){
+                listAddress = new ArrayList<>();
+            }
+            Address addr = new Address();
+            addr.setHouseNumber(dtoUser.getHouseNumber());
+            addr.setStreet(dtoUser.getStreet());
+            addr.setCity(dtoUser.getCity());
+            addr.setState(dtoUser.getState());
+            addr.setZipcode(dtoUser.getZipcode());
+            addr.setCountry(dtoUser.getCountry());
+
+            listAddress.add(addr);
+            userRepo.flush();
+        }
+        else{
+            throw new UsernameNotFoundException(userName);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean removeAddressByUsername(String userName, Long addressId) {
+        Optional<User> opUser = userRepo.findUserByUsername(userName);
+        User user = null;
+        if(opUser.isPresent()){
+            user = opUser.get();
+
+
+            List<Address> listAddress = user.getLstAddress();
+            if(listAddress == null){
+                return false;
+            }
+            else {
+                Optional<Address> addr = listAddress.stream().filter(a -> a.getId() == addressId).findFirst();
+
+
+//                int iPos = -1;
+//                for(int i=0; i<listAddress.size(); i++){
+//                    if(listAddress.get(i).getId() == addressId){
+//                        iPos = i;
+//                        break;
+//                    }
+//                }
+//                if(iPos != -1){
+                //TODO Didn't work when it is not removed
+                if(addr.isPresent()){
+                    addressRepo.deleteById(addressId);
+//                    listAddress.remove(iPos);
+//                    user.setLstAddress(listAddress);
+//                    userRepo.flush();
+                }
+                else{
+                    throw new AddressNotFoundException(addressId);
+                }
+            }
+        }
+        else{
+            throw new UsernameNotFoundException(userName);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean setDefaultAddress(String userName, Long addressId) {
+
+        Optional<User> opUser = userRepo.findUserByUsername(userName);
+        User user = null;
+
+        if(opUser.isPresent()){
+            user = opUser.get();
+            List<Address> listAddress = user.getLstAddress();
+            if(listAddress == null){
+                return false;
+            }
+            else {
+                //TODO Optional<Address> addr = listAddress.stream().filter(a -> a.getId() == addressId).findFirst();
+                for(Address addr : listAddress){
+                    if(addr.isDefault()){
+                        addr.setDefault(false);
+                    }
+                    if(addr.getId() == addressId){
+                        addr.setDefault(true);
+                    }
+                }
+                userRepo.flush();
+            }
+        }
+        else {
+            throw new UsernameNotFoundException(userName);
+        }
+        return true;
+    }
+
+
 }

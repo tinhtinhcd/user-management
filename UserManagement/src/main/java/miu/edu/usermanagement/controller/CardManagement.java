@@ -27,20 +27,20 @@ public class CardManagement {
         this.messageSource = messageSource;
     }
 
-    @PostMapping(value = "api/card/add")
-    public @ResponseBody String addNewCard(@RequestParam(name = "un") String userName, @Valid @RequestBody CardDTO cardDTO){
+    @PostMapping(value = "api/user/{username}/cards")
+    public @ResponseBody String addNewCard(@PathVariable(name = "username") String userName, @Valid @RequestBody CardDTO cardDTO){
         String retMessage = cardService.addNewCard(userName, cardDTO);
 
         return retMessage;
     }
 
-    @GetMapping(value = "/api/card/get")
-    public @ResponseBody CardDTO getCardByUserNameAndCardNumber(@RequestParam(name = "un") String userName, @RequestParam(name = "cn") String cardNumber){
+    @GetMapping(value = "/api/user/{username}/cards/{cardnumber}")
+    public @ResponseBody CardDTO getCardByUserNameAndCardNumber(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNumber){
         return cardService.getCardInfo(userName, cardNumber);
     }
 
-    @GetMapping(value = "api/card/list")
-    public @ResponseBody List<CardDTO> listAllCards(@RequestParam(name = "un") String userName){
+    @GetMapping(value = "api/user/{username}/cards")
+    public @ResponseBody List<CardDTO> listAllCards(@PathVariable(name = "username") String userName){
         UserDTO dtoUser = userService.queryUserByUserName(userName);
         if(dtoUser != null) {
             return dtoUser.getCards();
@@ -50,8 +50,8 @@ public class CardManagement {
         }
     }
 
-    @PostMapping(value = "/api/card/update")
-    public String updateCardByUserName(@RequestParam(name = "un") String userName, @RequestParam(name = "cn") String cardNumber, @RequestBody CardDTO dtoCard){
+    @PutMapping(value = "/api/user/{username}/cards/{cardnumber}")
+    public String updateCardByUserName(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNumber, @RequestBody CardDTO dtoCard){
         if(cardService.updateCard(userName, cardNumber, dtoCard)){
             return messageSource.getMessage("card.update.success", null, Locale.US);
         }
@@ -60,13 +60,13 @@ public class CardManagement {
         }
     }
 
-    @PostMapping(value = "api/card/remove")
-    public @ResponseBody String removeCard(@RequestParam(name = "un") String userName, @RequestParam(name = "cn") String cardNo){
+    @DeleteMapping(value = "api/user/{username}/cards/{cardnumber}")
+    public @ResponseBody String removeCard(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNo){
         return cardService.removeCard(userName, cardNo);
     }
 
-    @PostMapping(value = "api/card/default")
-    public @ResponseBody String setDefaultCard(@RequestParam(name = "un") String userName, @RequestParam(name = "cn") String cardNo){
+    @PutMapping(value = "api/user/{username}/cards/default/{cardnumber}")
+    public @ResponseBody String setDefaultCard(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNo){
         if(cardService.setDefaultCard(userName, cardNo)){
             return messageSource.getMessage("card.default.success", null, Locale.US);
         }

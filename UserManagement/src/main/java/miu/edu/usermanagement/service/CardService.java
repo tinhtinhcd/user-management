@@ -93,6 +93,7 @@ public class CardService implements ICardService {
         Optional<User> user = userRepo.findUserByUsername(userName);
         if(user.isPresent()){
             //cardRepo.removeCardByUserIdAndCardNumber(user.get().getId(), cardNo);
+            //TODO It removes all cards, not cards by user name
             cardRepo.deleteCardsByCardNumber(cardNo);
             //lambda
 //            User entityUser = user.get();

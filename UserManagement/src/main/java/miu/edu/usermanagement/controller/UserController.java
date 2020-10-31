@@ -11,11 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @CrossOrigin(maxAge = 3600)
 @RestController
@@ -32,17 +37,17 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/api")
-    public String testAPI(){
-        return "Hello API";
-    }
+//    @GetMapping("/api")
+//    public String testAPI(){
+//        return "Hello API";
+//    }
 
 //    @GetMapping("/api")
 //    public ResponseEntity<String> testAPI(){
 //        return new ResponseEntity<>("Hello API", HttpStatus.OK);
 //    }
 
-    @PostMapping(value="/user/register", produces="application/json")
+    @PostMapping(value="/users", produces="application/json")
     public @ResponseBody User registerUser(@Valid @RequestBody RegUser newUser){//}, BindingResult result){
 
 //        if(result.hasErrors()){
@@ -58,15 +63,15 @@ public class UserController {
 //        return messageSource.getMessage("user.new.fail", new String[]{newUser.getUsername()}, Locale.US);
     }
 
-    @GetMapping(value="api/user/getByUserName")
-    public @ResponseBody UserDTO getUserInfoByUsername(@RequestParam(name="un") String userName){
+    @GetMapping(value="api/users/username/{username}")
+    public @ResponseBody UserDTO getUserInfoByUsername(@PathVariable(name="username") String userName){
         UserDTO dtoUser = userService.queryUserByUserName(userName);
 
         return dtoUser;
     }
 
-    @PostMapping(value="api/user/updateUser")
-    public @ResponseBody String updateUser(@RequestParam(name="un") String userName, @Valid @RequestBody UserDTO dtoUser){
+    @PutMapping(value="api/users/{username}")
+    public @ResponseBody String updateUser(@PathVariable(name="username") String userName, @Valid @RequestBody UserDTO dtoUser){
         String retMessage = "";
         if(userService.updateUserInfoByUsername(userName, dtoUser)){
             retMessage = messageSource.getMessage("user.update.success", new String[]{userName}, Locale.US);
@@ -77,21 +82,53 @@ public class UserController {
         return retMessage;
     }
 
-    @GetMapping(value="api/user/list")
+    @PostMapping(value = "api/users/{username}/addresses")
+    public @ResponseBody ResponseEntity addNewUserAddress(@PathVariable(name = "username") String userName, @RequestBody UserDTO dtoUser){
+        if(userService.addAddressByUsername(userName, dtoUser)){
+            return makeSuccessResponse(messageSource.getMessage("address.add.success", null, Locale.US));
+        }
+        return null;
+    }
+
+    @DeleteMapping(value = "api/users/{username}/addresses/{addressId}")
+    public @ResponseBody ResponseEntity removeUserAddress(@PathVariable(name = "username") String userName, @PathVariable(name = "addressId") Long addressId){
+        if(userService.removeAddressByUsername(userName, addressId)){
+            return makeSuccessResponse(messageSource.getMessage("address.remove.success", null, Locale.US));
+        }
+        return null;
+    }
+
+    @PutMapping(value = "api/users/{username}/addresses/{addressId}/default")
+    public @ResponseBody ResponseEntity setDefaultAddress(@PathVariable(name = "username") String userName, @PathVariable(name = "addressId") Long addressId){
+        if(userService.setDefaultAddress(userName, addressId)){
+            return makeSuccessResponse(messageSource.getMessage("address.default.success", null, Locale.US));
+        }
+        return null;
+    }
+
+    private ResponseEntity makeSuccessResponse(String message) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", message);
+
+        return new ResponseEntity<>(body, HttpStatus.OK);
+    }
+
+    @GetMapping(value="api/users")
     public @ResponseBody List<UserDTO> listOfUsers(){
 
         List<UserDTO> listUsers = userService.getListUserInfo();
         return listUsers;
     }
 
-    @GetMapping(value="api/user/listByIDs")
-    public @ResponseBody List<UserDTO> listOfUserIDs(@RequestBody List<UserIdDTO> listUserIDs){
+    @GetMapping(value="api/users/{ids}")
+    public @ResponseBody List<UserDTO> listOfUserIDs(@PathVariable(name = "ids") List<Long> listUserIDs){
 
         List<UserDTO> listUsers = userService.getListUserInfoByIDs(listUserIDs);
         return listUsers;
     }
 
-    @GetMapping(value="api/user/roles")
+    @GetMapping(value="api/users/roles")
     public @ResponseBody List<RoleDTO> listOfRoles(){
 
         List<RoleDTO> listRoles = userService.getListRoles();
