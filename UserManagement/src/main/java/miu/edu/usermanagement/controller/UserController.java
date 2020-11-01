@@ -45,14 +45,14 @@ public class UserController {
 //    }
 
     @PostMapping(value="/users", produces="application/json")
-    public @ResponseBody User registerUser(@Valid @RequestBody RegUser newUser){//}, BindingResult result){
+    public @ResponseBody UserDTO registerUser(@Valid @RequestBody RegUser newUser){//}, BindingResult result){
 
 //        if(result.hasErrors()){
 //            //return validation errors
 //            return messageSource.getMessage("user.validate.error", null, Locale.US);//"Invalid input data";
 //        }
 
-        User retUser = userService.addNewUser(newUser);
+        UserDTO retUser = userService.addNewUser(newUser);
         return retUser;
 //        if(retUser != null){
 //            return messageSource.getMessage("user.new.success", new String[]{newUser.getUsername()}, Locale.US);

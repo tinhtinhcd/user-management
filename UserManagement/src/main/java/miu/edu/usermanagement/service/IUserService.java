@@ -6,7 +6,7 @@ import miu.edu.usermanagement.entity.User;
 import java.util.List;
 
 public interface IUserService {
-    public User addNewUser(RegUser newUser);
+    public UserDTO addNewUser(RegUser newUser);
     public UserDTO queryUserByUserName(String userName);
     public List<RoleDTO> getListRoles();
     public boolean updateUserInfoByUsername(String userName, UserDTO dtoUser);

@@ -40,21 +40,23 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public User addNewUser(RegUser newUser){
+    public UserDTO addNewUser(RegUser newUser){
 
-        User retUser = null;
+        UserDTO dtoUser = new UserDTO();
         Optional<User> user = userRepo.findUserByUsername(newUser.getUsername());
 
         if(!user.isPresent()) {
             User userEntity = new User();
             mapNewUserDtoToEntity(newUser, userEntity,true);
-            retUser = userRepo.save(userEntity);
+            userEntity = userRepo.save(userEntity);
+            //mapping user from entity to dto
+            dtoUser = mapUserEntityToDto(userEntity);
         }
         else{
             throw new UsernameExistedException(newUser.getUsername());
         }
 
-        return retUser;
+        return dtoUser;
     }
 
     @Override
@@ -104,17 +106,19 @@ public class UserService implements IUserService{
         //mapping addresses from entity to dto
         List<AddressDTO> lstAddrDTO = new ArrayList<>();
         List<Address> lstAddr = entityUser.getLstAddress();
-        for(Address address : lstAddr){
-            AddressDTO dtoAddr = new AddressDTO();
-            dtoAddr.setAddressId(address.getId());
-            dtoAddr.setHouseNumber(address.getHouseNumber());
-            dtoAddr.setStreet(address.getStreet());
-            dtoAddr.setCity(address.getCity());
-            dtoAddr.setState(address.getState());
-            dtoAddr.setZipcode(address.getZipcode());
-            dtoAddr.setCountry(address.getCountry());
-            dtoAddr.setDefaultAddress(address.isDefault());
-            lstAddrDTO.add(dtoAddr);
+        if(lstAddr != null) {
+            for (Address address : lstAddr) {
+                AddressDTO dtoAddr = new AddressDTO();
+                dtoAddr.setAddressId(address.getId());
+                dtoAddr.setHouseNumber(address.getHouseNumber());
+                dtoAddr.setStreet(address.getStreet());
+                dtoAddr.setCity(address.getCity());
+                dtoAddr.setState(address.getState());
+                dtoAddr.setZipcode(address.getZipcode());
+                dtoAddr.setCountry(address.getCountry());
+                dtoAddr.setDefaultAddress(address.isDefault());
+                lstAddrDTO.add(dtoAddr);
+            }
         }
         dtoUser.setAddresses(lstAddrDTO);
 
@@ -130,14 +134,16 @@ public class UserService implements IUserService{
 
         List<Card> listCards = entityUser.getListCards();
         List<CardDTO> dtoCards = new ArrayList<>();
-        for(Card card : listCards) {
-            if (card.isDefault()) {
-                CardDTO dtoCard = new CardDTO();
-                dtoCard.setCardNumber(card.getCardNumber());
-                dtoCard.setType(card.getType());
-                dtoCard.setExpiredDate(card.getExpiredDate());
-                dtoCard.setDefault(card.isDefault());
-                dtoCards.add(dtoCard);
+        if(listCards != null) {
+            for (Card card : listCards) {
+                if (card.isDefault()) {
+                    CardDTO dtoCard = new CardDTO();
+                    dtoCard.setCardNumber(card.getCardNumber());
+                    dtoCard.setType(card.getType());
+                    dtoCard.setExpiredDate(card.getExpiredDate());
+                    dtoCard.setDefault(card.isDefault());
+                    dtoCards.add(dtoCard);
+                }
             }
         }
         dtoUser.setCards(dtoCards);
