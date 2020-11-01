@@ -28,6 +28,6 @@ public class UserDTO extends UserIdDTO {
     private String phone;
 
     private List<AddressDTO> addresses;
-    private List<UserRoleDTO> roles;
+    private List<RoleDTO> roles;
     private List<CardDTO> cards;
 }

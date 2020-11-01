@@ -123,11 +123,13 @@ public class UserService implements IUserService{
         dtoUser.setAddresses(lstAddrDTO);
 
         //TODO 8 lines of code are duplicated
-        List<UserRoleDTO> dtoRoles = new ArrayList<>();
+        List<RoleDTO> dtoRoles = new ArrayList<>();
         List<Role> listRoles = entityUser.getRoles();
         for(Role role : listRoles){
-            UserRoleDTO dtoRole = new UserRoleDTO();
+            RoleDTO dtoRole = new RoleDTO();
             dtoRole.setId(role.getId());
+            dtoRole.setName(role.getName());
+            dtoRole.setDescription(role.getDescription());
             dtoRoles.add(dtoRole);
         }
         dtoUser.setRoles(dtoRoles);
@@ -139,7 +141,8 @@ public class UserService implements IUserService{
                 if (card.isDefault()) {
                     CardDTO dtoCard = new CardDTO();
                     dtoCard.setCardNumber(card.getCardNumber());
-                    dtoCard.setType(card.getType());
+                    dtoCard.setName(card.getName());
+                    dtoCard.setCvv(card.getCvv());
                     dtoCard.setExpiredDate(card.getExpiredDate());
                     dtoCard.setDefault(card.isDefault());
                     dtoCards.add(dtoCard);
@@ -197,7 +200,7 @@ public class UserService implements IUserService{
 
         userEntity.setLstAddress(lstAddr);
 
-        List<UserRoleDTO> listDTORoles = dtoUser.getRoles();
+        List<RoleDTO> listDTORoles = dtoUser.getRoles();
         List<Long> listRoles = listDTORoles.stream().map(o -> o.getId()).collect(Collectors.toList());
         List<Role> lRoles = getListEntityRole(listRoles);//getListRoles().stream().filter(o -> listRoles.contains(o.getId())).collect((Collectors.toList()));
 
@@ -252,8 +255,8 @@ public class UserService implements IUserService{
             }
 
             List<Address> listAddress = user.getLstAddress();
-            if(listAddress.size() != 0){
-                List<AddressDTO> listAddressDto = dtoUser.getAddresses();
+            List<AddressDTO> listAddressDto = dtoUser.getAddresses();
+            if(listAddress.size() != 0 && listAddressDto != null && listAddressDto.size() != 0){
                 for(AddressDTO addressDto : listAddressDto){
                     Optional<Address> opAddress = listAddress.stream().filter(a -> a.getId() == addressDto.getAddressId()).findFirst();
                     if(opAddress.isPresent()){ //if the same address id --> update address data
@@ -287,7 +290,7 @@ public class UserService implements IUserService{
             }
 
             //Update roles
-            List<UserRoleDTO> listDtoRoles = dtoUser.getRoles();
+            List<RoleDTO> listDtoRoles = dtoUser.getRoles();
             if(listDtoRoles != null && listDtoRoles.size() != 0){
                 List<Role> lRoles = user.getRoles();
                 //Empty the list of roles for adding new ones

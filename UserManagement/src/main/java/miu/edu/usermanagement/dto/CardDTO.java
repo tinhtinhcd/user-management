@@ -11,10 +11,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardDTO {
-    @Size(min=10, max=10, message = "{error.length.minmax}")
+    @Size(min=16, max=16, message = "{error.length.minmax}")
     private String cardNumber;
     @Size(min=2, max=10, message = "{error.length.minmax}")
-    private String type;
+    private String name;
+    @Size(min=3, max=3, message = "{error.length.minmax}")
+    private String cvv;
     private Date expiredDate;
     private boolean isDefault;
 }

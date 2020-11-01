@@ -67,7 +67,8 @@ public class CardService implements ICardService {
     private CardDTO mapCardEntityToDTO(Card entityCard) {
         CardDTO dtoCard = new CardDTO();
         dtoCard.setCardNumber(entityCard.getCardNumber());
-        dtoCard.setType(entityCard.getType());
+        dtoCard.setName(entityCard.getName());
+        dtoCard.setCvv(entityCard.getCvv());
         dtoCard.setExpiredDate(entityCard.getExpiredDate());
         dtoCard.setDefault(entityCard.isDefault());
 
@@ -79,7 +80,8 @@ public class CardService implements ICardService {
         card.setCardNumber(cardDTO.getCardNumber());
         card.setDefault(true);
         card.setExpiredDate(cardDTO.getExpiredDate());
-        card.setType(cardDTO.getType());
+        card.setName(cardDTO.getName());
+        card.setCvv(cardDTO.getCvv());
         card.setCreateDate(LocalDateTime.now());
 
         return card;
@@ -118,7 +120,8 @@ public class CardService implements ICardService {
             if(opCard.isPresent()){
                 Card card = opCard.get();
                 card.setCardNumber(cardNumber);
-                card.setType(cardDTO.getType());
+                card.setName(cardDTO.getName());
+                card.setCvv(cardDTO.getCvv());
                 card.setExpiredDate(cardDTO.getExpiredDate());
                 card.setDefault(cardDTO.isDefault());
                 userRepo.flush();

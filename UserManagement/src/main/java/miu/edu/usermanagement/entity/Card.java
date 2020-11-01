@@ -17,7 +17,8 @@ import java.util.Date;
 public class Card extends BaseModel{
 
     private String cardNumber;
-    private String type;
+    private String name;
+    private String cvv;
     private Date expiredDate;
     private boolean isDefault;
 }
