@@ -255,3 +255,4 @@ UserManagement/target/generated-sources/annotations/miu/edu/usermanagement/mappe
 UserManagement/target/classes/miu/edu/usermanagement/dto/AddressDTO.class
 UserManagement/target/classes/miu/edu/usermanagement/config/UserManagementConfigurer.class
 UserManagement/target/classes/miu/edu/usermanagement/config/SwaggerConfig.class
+UserManagement/.idea/uiDesigner.xml

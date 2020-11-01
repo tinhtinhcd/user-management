@@ -26,20 +26,8 @@ public class UserDTO extends UserIdDTO {
     private String email;
     @Pattern(regexp= "\\(\\d{3}\\)[- .]?\\d{3}-\\d{4}", message = "{error.phone.format}")//"^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$")
     private String phone;
-    @Column(nullable = true)
-    private Long addressId;
-    @Size(min=2, max=6, message = "{error.length.minmax}")
-    private String houseNumber;
-    @Size(max=20, message = "{error.length.max}")
-    private String street;
-    @Size(max=20, message = "{error.length.max}")
-    private String city;
-    @Size(min=2, max=2, message = "{error.length.minmax}")
-    private String state;
-    @Pattern(regexp = "^\\d{5}$", message = "{error.zipcode}")
-    private String zipcode;
-    @Size(max=20, message = "{error.length.max}")
-    private String country;
+
+    private List<AddressDTO> addresses;
     private List<UserRoleDTO> roles;
     private List<CardDTO> cards;
 }

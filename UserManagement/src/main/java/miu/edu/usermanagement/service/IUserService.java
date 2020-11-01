@@ -1,9 +1,6 @@
 package miu.edu.usermanagement.service;
 
-import miu.edu.usermanagement.dto.RegUser;
-import miu.edu.usermanagement.dto.RoleDTO;
-import miu.edu.usermanagement.dto.UserDTO;
-import miu.edu.usermanagement.dto.UserIdDTO;
+import miu.edu.usermanagement.dto.*;
 import miu.edu.usermanagement.entity.User;
 
 import java.util.List;
@@ -16,7 +13,8 @@ public interface IUserService {
     public List<RegUser> getListUsers();
     public List<UserDTO> getListUserInfo();
     public List<UserDTO> getListUserInfoByIDs(List<Long> listUserIDs);
-    public boolean addAddressByUsername(String userName, UserDTO dtoUser);
+    public boolean addAddressByUsername(String userName, AddressDTO dtoAddress);
+    public boolean updateAddressByUsername(String userName, Long addressId, AddressDTO dtoAddress);
     public boolean removeAddressByUsername(String userName, Long addressId);
     public boolean setDefaultAddress(String userName, Long addressId);
 }

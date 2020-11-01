@@ -1,9 +1,6 @@
 package miu.edu.usermanagement.controller;
 
-import miu.edu.usermanagement.dto.RegUser;
-import miu.edu.usermanagement.dto.RoleDTO;
-import miu.edu.usermanagement.dto.UserDTO;
-import miu.edu.usermanagement.dto.UserIdDTO;
+import miu.edu.usermanagement.dto.*;
 import miu.edu.usermanagement.entity.User;
 import miu.edu.usermanagement.service.UserService;
 
@@ -83,9 +80,19 @@ public class UserController {
     }
 
     @PostMapping(value = "api/users/{username}/addresses")
-    public @ResponseBody ResponseEntity addNewUserAddress(@PathVariable(name = "username") String userName, @RequestBody UserDTO dtoUser){
-        if(userService.addAddressByUsername(userName, dtoUser)){
+    public @ResponseBody ResponseEntity addNewUserAddress(@PathVariable(name = "username") String userName, @RequestBody AddressDTO dtoAddress){
+        if(userService.addAddressByUsername(userName, dtoAddress)){
             return makeSuccessResponse(messageSource.getMessage("address.add.success", null, Locale.US));
+        }
+        return null;
+    }
+
+    @PutMapping(value = "/api/users/{username}/addresses/{addressId}")
+    public @ResponseBody String updateUserAddress(@PathVariable(name = "username") String userName,
+                                                  @PathVariable(name = "addressId") Long addressId,
+                                                  @RequestBody AddressDTO dtoAddress){
+        if(userService.updateAddressByUsername(userName, addressId, dtoAddress)){
+            return messageSource.getMessage("address.update.success", null, Locale.US);
         }
         return null;
     }

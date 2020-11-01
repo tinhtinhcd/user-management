@@ -100,30 +100,25 @@ public class UserService implements IUserService{
         dtoUser.setLastName(entityUser.getLastName());
         dtoUser.setEmail(entityUser.getEmail());
         dtoUser.setPhone(entityUser.getPhone());
+
+        //mapping addresses from entity to dto
+        List<AddressDTO> lstAddrDTO = new ArrayList<>();
         List<Address> lstAddr = entityUser.getLstAddress();
-        Address address = null;
-        for(Address addr : lstAddr){
-            if(addr.isDefault()){
-                address = addr;
-                break;
-            }
+        for(Address address : lstAddr){
+            AddressDTO dtoAddr = new AddressDTO();
+            dtoAddr.setAddressId(address.getId());
+            dtoAddr.setHouseNumber(address.getHouseNumber());
+            dtoAddr.setStreet(address.getStreet());
+            dtoAddr.setCity(address.getCity());
+            dtoAddr.setState(address.getState());
+            dtoAddr.setZipcode(address.getZipcode());
+            dtoAddr.setCountry(address.getCountry());
+            dtoAddr.setDefaultAddress(address.isDefault());
+            lstAddrDTO.add(dtoAddr);
         }
+        dtoUser.setAddresses(lstAddrDTO);
 
-        //if no default address, just get the first address as default
-        if(address == null && lstAddr.size() > 0) {
-            address = lstAddr.get(0);
-        }
-
-        if(address != null){
-            dtoUser.setAddressId(address.getId());
-            dtoUser.setHouseNumber(address.getHouseNumber());
-            dtoUser.setStreet(address.getStreet());
-            dtoUser.setCity(address.getCity());
-            dtoUser.setState(address.getState());
-            dtoUser.setZipcode(address.getZipcode());
-            dtoUser.setCountry(address.getCountry());
-        }
-
+        //TODO 8 lines of code are duplicated
         List<UserRoleDTO> dtoRoles = new ArrayList<>();
         List<Role> listRoles = entityUser.getRoles();
         for(Role role : listRoles){
@@ -175,63 +170,31 @@ public class UserService implements IUserService{
     private User mapUserDtoToEntity(UserDTO dtoUser){//}, boolean bNewUser) {
         User userEntity = new User();
 
-//        userEntity.setUsername(dtoUser.getUsername());
-
-//        if(bNewUser) {
-//            //encrypt password
-////            BCryptPasswordEncoder encoding = new BCryptPasswordEncoder(16);
-////            String encodedPass = encoding.encode(dtoUser.getPassword());
-////            userEntity.setPassword(encodedPass);
-////
-////            //try to decrypt
-////            String checkedPass = dtoUser.getPassword();
-////            if (!encoding.matches(checkedPass, encodedPass)) {
-////                //The encoding is wrong
-////                return null;
-////            }
-//        }
-//        else{
-//            userEntity.setPassword(dtoUser.getPassword());
-//        }
-
         userEntity.setFirstName(dtoUser.getFirstName());
         userEntity.setLastName(dtoUser.getLastName());
         userEntity.setEmail(dtoUser.getEmail());
         userEntity.setPhone(dtoUser.getPhone());
-//        userEntity.setStatus(bNewUser);
-
-//        DateTimeFormatter curDateTime = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-//        LocalDateTime now = LocalDateTime.now();
-//        System.out.println(curDateTime.format(now));
-
-//        userEntity.setCreateDate(LocalDateTime.now());
-
-        Address addr = new Address();
-        addr.setHouseNumber(dtoUser.getHouseNumber());
-        addr.setStreet(dtoUser.getStreet());
-        addr.setCity(dtoUser.getCity());
-        addr.setZipcode(dtoUser.getZipcode());
-        addr.setState(dtoUser.getState());
-        addr.setCountry(dtoUser.getCountry());
-//        addr.setDefault(bNewUser);
 
         List<Address> lstAddr = new ArrayList<Address>();
-        lstAddr.add(addr);
+        List<AddressDTO> listAddressDTO = dtoUser.getAddresses();
+        for(AddressDTO dtoAddress : listAddressDTO) {
+            Address addr = new Address();
+            addr.setHouseNumber(dtoAddress.getHouseNumber());
+            addr.setStreet(dtoAddress.getStreet());
+            addr.setCity(dtoAddress.getCity());
+            addr.setZipcode(dtoAddress.getZipcode());
+            addr.setState(dtoAddress.getState());
+            addr.setCountry(dtoAddress.getCountry());
+            addr.setDefault(dtoAddress.isDefaultAddress());
+            lstAddr.add(addr);
+        }
+
         userEntity.setLstAddress(lstAddr);
 
-        List<Role> lRoles = new ArrayList<Role>();
         List<UserRoleDTO> listDTORoles = dtoUser.getRoles();
         List<Long> listRoles = listDTORoles.stream().map(o -> o.getId()).collect(Collectors.toList());
-        lRoles = getListEntityRole(listRoles);//getListRoles().stream().filter(o -> listRoles.contains(o.getId())).collect((Collectors.toList()));
+        List<Role> lRoles = getListEntityRole(listRoles);//getListRoles().stream().filter(o -> listRoles.contains(o.getId())).collect((Collectors.toList()));
 
-//        for(UserRoleDTO dtoRole : listDTORoles){
-//            Role role = new Role();
-//
-//            role.setId(dtoRole.getId());
-////            entityRole.setName(role.getName());
-////            entityRole.setDescription(role.getDescription());
-//            lRoles.add(role);
-//        }
         userEntity.setRoles(lRoles);
 
         return userEntity;
@@ -283,76 +246,58 @@ public class UserService implements IUserService{
             }
 
             List<Address> listAddress = user.getLstAddress();
-            if(listAddress.size() == 0){
-                Address addr = new Address();
-                listAddress = new ArrayList<>();
-                listAddress.add(addr);
-                addr.setDefault(true);
-                user.setLstAddress(listAddress);
-            }
-
-            //update address: if id is specified, relevant address is updated, otherwise the default address is updated
-            Address addr = null;
-            if(dtoUser.getAddressId() != null){
-                Optional<Address> opAddr = listAddress.stream().filter(a -> a.getId() == dtoUser.getAddressId()).findFirst();
-                if (opAddr.isPresent()) {
-                    addr = opAddr.get();
-                }
-                else {//no exist the specified address id
-                    throw new AddressNotFoundException(dtoUser.getAddressId());
-//                    bUpdate = false;
-                }
-            }
-            else { // no address id is specified --> just update the address info to the default address
-                Optional<Address> opAddr = listAddress.stream().filter(a -> a.isDefault() == true).findFirst();
-                if(opAddr.isPresent()){
-                    addr = opAddr.get();
-                }
-                else{// no default address --> pick the first one and set it as default
-                    addr = listAddress.get(0);
-                    addr.setDefault(true);
-                }
-            }
-
-            if(bUpdate) {
-                if (dtoUser.getHouseNumber() != null) {
-                    addr.setHouseNumber(dtoUser.getHouseNumber());
-                }
-                if (dtoUser.getStreet() != null) {
-                    addr.setStreet(dtoUser.getStreet());
-                }
-                if (dtoUser.getCity() != null) {
-                    addr.setCity(dtoUser.getCity());
-                }
-                if (dtoUser.getState() != null) {
-                    addr.setState(dtoUser.getState());
-                }
-                if (dtoUser.getZipcode() != null) {
-                    addr.setZipcode(dtoUser.getZipcode());
-                }
-                if (dtoUser.getCountry() != null) {
-                    addr.setCountry(dtoUser.getCountry());
-                }
-
-                //Update roles
-                List<UserRoleDTO> listDtoRoles = dtoUser.getRoles();
-                if(listDtoRoles != null && listDtoRoles.size() != 0){
-                    List<Role> lRoles = user.getRoles();
-                    //Empty the list of roles for adding new ones
-                    while(lRoles.size() > 0){
-                        lRoles.remove(0);
+            if(listAddress.size() != 0){
+                List<AddressDTO> listAddressDto = dtoUser.getAddresses();
+                for(AddressDTO addressDto : listAddressDto){
+                    Optional<Address> opAddress = listAddress.stream().filter(a -> a.getId() == addressDto.getAddressId()).findFirst();
+                    if(opAddress.isPresent()){ //if the same address id --> update address data
+                        Address address = opAddress.get();
+                        if (addressDto.getHouseNumber() != null) {
+                            address.setHouseNumber(addressDto.getHouseNumber());
+                        }
+                        if (addressDto.getStreet() != null) {
+                            address.setStreet(addressDto.getStreet());
+                        }
+                        if (addressDto.getCity() != null) {
+                            address.setCity(addressDto.getCity());
+                        }
+                        if (addressDto.getState() != null) {
+                            address.setState(addressDto.getState());
+                        }
+                        if (addressDto.getZipcode() != null) {
+                            address.setZipcode(addressDto.getZipcode());
+                        }
+                        if (addressDto.getCountry() != null) {
+                            address.setCountry(addressDto.getCountry());
+                        }
+                        if (addressDto.isDefaultAddress()){
+                            address.setDefault(addressDto.isDefaultAddress());
+                        }
                     }
+                    else{
+                        throw new AddressNotFoundException(addressDto.getAddressId());
+                    }
+                }
+            }
 
-                    //TODO: Duplicated this code --> should make a common function
-                    List<Long> listRoleIDs = listDtoRoles.stream().map(o -> o.getId()).collect(Collectors.toList());
-                    lRoles = getListEntityRole(listRoleIDs);
-
-                    user.setRoles(lRoles);
+            //Update roles
+            List<UserRoleDTO> listDtoRoles = dtoUser.getRoles();
+            if(listDtoRoles != null && listDtoRoles.size() != 0){
+                List<Role> lRoles = user.getRoles();
+                //Empty the list of roles for adding new ones
+                while(lRoles.size() > 0){
+                    lRoles.remove(0);
                 }
 
-                //save changes to DB
-                userRepo.flush();
+                //TODO: Duplicated this code --> should make a common function
+                List<Long> listRoleIDs = listDtoRoles.stream().map(o -> o.getId()).collect(Collectors.toList());
+                lRoles = getListEntityRole(listRoleIDs);
+
+                user.setRoles(lRoles);
             }
+
+            //save changes to DB
+            userRepo.flush();
         }
 
         return bUpdate;
@@ -407,7 +352,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public boolean addAddressByUsername(String userName, UserDTO dtoUser) {
+    public boolean addAddressByUsername(String userName, AddressDTO dtoAddress) {
         Optional<User> opUser = userRepo.findUserByUsername(userName);
         User user = null;
         if(opUser.isPresent()){
@@ -417,15 +362,46 @@ public class UserService implements IUserService{
                 listAddress = new ArrayList<>();
             }
             Address addr = new Address();
-            addr.setHouseNumber(dtoUser.getHouseNumber());
-            addr.setStreet(dtoUser.getStreet());
-            addr.setCity(dtoUser.getCity());
-            addr.setState(dtoUser.getState());
-            addr.setZipcode(dtoUser.getZipcode());
-            addr.setCountry(dtoUser.getCountry());
+            addr.setHouseNumber(dtoAddress.getHouseNumber());
+            addr.setStreet(dtoAddress.getStreet());
+            addr.setCity(dtoAddress.getCity());
+            addr.setState(dtoAddress.getState());
+            addr.setZipcode(dtoAddress.getZipcode());
+            addr.setCountry(dtoAddress.getCountry());
+            if(listAddress.size() == 0){
+                addr.setDefault(true);
+            }
 
             listAddress.add(addr);
             userRepo.flush();
+        }
+        else{
+            throw new UsernameNotFoundException(userName);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean updateAddressByUsername(String userName, Long addressId, AddressDTO dtoAddress) {
+        Optional<User> opUser = userRepo.findUserByUsername(userName);
+        if(opUser.isPresent()){
+            User user = opUser.get();
+            List<Address> addresses = user.getLstAddress();
+            Optional<Address> opAddr = addresses.stream().filter(a -> a.getId() == addressId).findFirst();
+            if(opAddr.isPresent()){
+                //update address info
+                Address addr = opAddr.get();
+                addr.setHouseNumber(dtoAddress.getHouseNumber());
+                addr.setHouseNumber(dtoAddress.getStreet());
+                addr.setCity(dtoAddress.getCity());
+                addr.setState(dtoAddress.getState());
+                addr.setZipcode(dtoAddress.getZipcode());
+                addr.setCountry(dtoAddress.getCountry());
+                userRepo.flush();
+            }
+            else {
+                throw new AddressNotFoundException(addressId);
+            }
         }
         else{
             throw new UsernameNotFoundException(userName);
@@ -440,36 +416,35 @@ public class UserService implements IUserService{
         if(opUser.isPresent()){
             user = opUser.get();
 
-
             List<Address> listAddress = user.getLstAddress();
             if(listAddress == null){
                 return false;
             }
             else {
                 Optional<Address> addr = listAddress.stream().filter(a -> a.getId() == addressId).findFirst();
-
-
-//                int iPos = -1;
-//                for(int i=0; i<listAddress.size(); i++){
-//                    if(listAddress.get(i).getId() == addressId){
-//                        iPos = i;
-//                        break;
-//                    }
-//                }
-//                if(iPos != -1){
-                //TODO Didn't work when it is not removed
-                if(addr.isPresent()){
-                    addressRepo.deleteById(addressId);
-//                    listAddress.remove(iPos);
-//                    user.setLstAddress(listAddress);
-//                    userRepo.flush();
-                }
-                else{
-                    throw new AddressNotFoundException(addressId);
+                if (addr.isPresent()) {
+                    int iPos = -1;
+                    for (int i = 0; i < listAddress.size(); i++) {
+                        if (listAddress.get(i).getId() == addressId) {
+                            iPos = i;
+                            break;
+                        }
+                    }
+                    if (iPos != -1) {
+                        listAddress.remove(iPos);
+                        userRepo.flush();
+                    }
+                    //TODO Didn't work when it is not removed
+                    //                if(addr.isPresent()){
+                    //                    addressRepo.deleteById(addressId);
+                    //                }
+                    else {
+                        throw new AddressNotFoundException(addressId);
+                    }
                 }
             }
         }
-        else{
+        else {
             throw new UsernameNotFoundException(userName);
         }
         return true;
@@ -505,6 +480,4 @@ public class UserService implements IUserService{
         }
         return true;
     }
-
-
 }
