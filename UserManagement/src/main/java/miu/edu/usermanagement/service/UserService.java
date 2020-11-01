@@ -431,13 +431,10 @@ public class UserService implements IUserService{
                         }
                     }
                     if (iPos != -1) {
-                        listAddress.remove(iPos);
+                        listAddress.remove(iPos); //Just remove user_id from the address table that not remove the address
                         userRepo.flush();
+                        addressRepo.deleteById(addressId); //this is used to remove the address actually
                     }
-                    //TODO Didn't work when it is not removed
-                    //                if(addr.isPresent()){
-                    //                    addressRepo.deleteById(addressId);
-                    //                }
                     else {
                         throw new AddressNotFoundException(addressId);
                     }
