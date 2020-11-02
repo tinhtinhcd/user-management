@@ -138,7 +138,7 @@ public class UserService implements IUserService{
         List<CardDTO> dtoCards = new ArrayList<>();
         if(listCards != null) {
             for (Card card : listCards) {
-                if (card.isDefault()) {
+//                if (card.isDefault()) {
                     CardDTO dtoCard = new CardDTO();
                     dtoCard.setCardNumber(card.getCardNumber());
                     dtoCard.setName(card.getName());
@@ -146,7 +146,7 @@ public class UserService implements IUserService{
                     dtoCard.setExpiredDate(card.getExpiredDate());
                     dtoCard.setDefault(card.isDefault());
                     dtoCards.add(dtoCard);
-                }
+//                }
             }
         }
         dtoUser.setCards(dtoCards);
