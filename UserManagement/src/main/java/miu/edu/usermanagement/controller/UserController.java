@@ -141,7 +141,7 @@ public class UserController {
         return listUsers;
     }
 
-    @PutMapping(value="api/users/{username}/{status}")
+    @PutMapping(value="api/users/{username}/{enable}")
     public ResponseEntity<ResponseMessage> setUserStatus(@PathVariable(name = "username") String userName,
                                                              @PathVariable(name = "status") boolean status){
         String retMessage = "";
