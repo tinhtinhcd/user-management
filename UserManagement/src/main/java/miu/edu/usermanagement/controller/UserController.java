@@ -128,9 +128,9 @@ public class UserController {
 //    }
 
     @GetMapping(value="api/users")
-    public @ResponseBody List<UserDTO> listOfUsers(){
+    public @ResponseBody List<UserDTO> listOfUsers(){ //@PathVariable(name = "status") int status){
 
-        List<UserDTO> listUsers = userService.getListUserInfo();
+        List<UserDTO> listUsers = userService.getListUserInfo(2);
         return listUsers;
     }
 
@@ -139,6 +139,25 @@ public class UserController {
 
         List<UserDTO> listUsers = userService.getListUserInfoByIDs(listUserIDs);
         return listUsers;
+    }
+
+    @PutMapping(value="api/users/{username}/{status}")
+    public ResponseEntity<ResponseMessage> setUserStatus(@PathVariable(name = "username") String userName,
+                                                             @PathVariable(name = "status") boolean status){
+        String retMessage = "";
+        if(userService.setUserStatus(userName, status)){
+            if(status){
+                retMessage = messageSource.getMessage("user.enable.success", null, Locale.US);
+            }
+            else {
+                retMessage = messageSource.getMessage("user.disable.success", null, Locale.US);
+            }
+        }
+        else{
+            retMessage = messageSource.getMessage("user.update.fail", null, Locale.US);
+        }
+
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
     @GetMapping(value="api/users/roles")

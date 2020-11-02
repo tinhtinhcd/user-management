@@ -66,8 +66,9 @@ public class CardManagement {
     }
 
     @DeleteMapping(value = "api/user/{username}/cards/{cardnumber}")
-    public @ResponseBody String removeCard(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNo){
-        return cardService.removeCard(userName, cardNo);
+    public ResponseEntity<ResponseMessage> removeCard(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNo){
+        String retMessage = cardService.removeCard(userName, cardNo);
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
     @PutMapping(value = "api/user/{username}/cards/default/{cardnumber}")

@@ -26,6 +26,7 @@ public class UserDTO extends UserIdDTO {
     private String email;
     @Pattern(regexp= "\\(\\d{3}\\)[- .]?\\d{3}-\\d{4}", message = "{error.phone.format}")//"^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$")
     private String phone;
+    private boolean enable;
 
     private List<AddressDTO> addresses;
     private List<RoleDTO> roles;

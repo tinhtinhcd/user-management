@@ -11,8 +11,9 @@ public interface IUserService {
     public List<RoleDTO> getListRoles();
     public boolean updateUserInfoByUsername(String userName, UserDTO dtoUser);
     public List<RegUser> getListUsers();
-    public List<UserDTO> getListUserInfo();
+    public List<UserDTO> getListUserInfo(int status);
     public List<UserDTO> getListUserInfoByIDs(List<Long> listUserIDs);
+    public boolean setUserStatus(String userName, boolean status);
     public boolean addAddressByUsername(String userName, AddressDTO dtoAddress);
     public boolean updateAddressByUsername(String userName, Long addressId, AddressDTO dtoAddress);
     public boolean removeAddressByUsername(String userName, Long addressId);

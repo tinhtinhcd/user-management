@@ -102,6 +102,7 @@ public class UserService implements IUserService{
         dtoUser.setLastName(entityUser.getLastName());
         dtoUser.setEmail(entityUser.getEmail());
         dtoUser.setPhone(entityUser.getPhone());
+        dtoUser.setEnable(entityUser.isStatus());
 
         //mapping addresses from entity to dto
         List<AddressDTO> lstAddrDTO = new ArrayList<>();
@@ -329,10 +330,22 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public List<UserDTO> getListUserInfo() {
+    public List<UserDTO> getListUserInfo(int status) {
         List<UserDTO> retListUser = new ArrayList<>();
-
-        List<User> listUser = userRepo.findAll();
+        List<User> listUser = null;
+        switch (status) {
+            case 2:
+                listUser = userRepo.findAll();
+                break;
+            case 1:
+                listUser = userRepo.findAllByStatus(true);
+                break;
+            case 0:
+                listUser = userRepo.findAllByStatus(false);
+                break;
+            default:
+                //wrong param
+        }
         if(listUser != null && listUser.size() != 0){
             for(User user : listUser){
                 UserDTO dtoUser = new UserDTO();
@@ -358,6 +371,20 @@ public class UserService implements IUserService{
         }
 
         return retListUser;
+    }
+
+    @Override
+    public boolean setUserStatus(String userName, boolean status) {
+        Optional<User> opUser = userRepo.findUserByUsername(userName);
+        if(opUser.isPresent()){
+            User user = opUser.get();
+            user.setStatus(status);
+            userRepo.flush();
+        }
+        else{
+            throw new UsernameNotFoundException(userName);
+        }
+        return true;
     }
 
     @Override
