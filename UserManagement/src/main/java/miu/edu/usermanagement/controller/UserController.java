@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@CrossOrigin(maxAge = 3600)
+@CrossOrigin(maxAge = 60)
 @RestController
 public class UserController {
 
