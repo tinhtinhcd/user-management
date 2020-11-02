@@ -2,10 +2,12 @@ package miu.edu.usermanagement.controller;
 
 import miu.edu.usermanagement.dto.CardDTO;
 import miu.edu.usermanagement.dto.UserDTO;
+import miu.edu.usermanagement.dto.response.ResponseMessage;
 import miu.edu.usermanagement.service.CardService;
 import miu.edu.usermanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,10 +30,10 @@ public class CardManagement {
     }
 
     @PostMapping(value = "api/user/{username}/cards")
-    public @ResponseBody String addNewCard(@PathVariable(name = "username") String userName, @Valid @RequestBody CardDTO cardDTO){
+    public ResponseEntity<ResponseMessage> addNewCard(@PathVariable(name = "username") String userName, @Valid @RequestBody CardDTO cardDTO){
         String retMessage = cardService.addNewCard(userName, cardDTO);
 
-        return retMessage;
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
     @GetMapping(value = "/api/user/{username}/cards/{cardnumber}")
@@ -51,13 +53,16 @@ public class CardManagement {
     }
 
     @PutMapping(value = "/api/user/{username}/cards/{cardnumber}")
-    public String updateCardByUserName(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNumber, @RequestBody CardDTO dtoCard){
+    public ResponseEntity<ResponseMessage> updateCardByUserName(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNumber, @RequestBody CardDTO dtoCard){
+        String retMessage = "";
         if(cardService.updateCard(userName, cardNumber, dtoCard)){
-            return messageSource.getMessage("card.update.success", null, Locale.US);
+            retMessage = messageSource.getMessage("card.update.success", null, Locale.US);
         }
         else{
-            return messageSource.getMessage("card.update.fail", null, Locale.US);
+            retMessage = messageSource.getMessage("card.update.fail", null, Locale.US);
         }
+
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
     @DeleteMapping(value = "api/user/{username}/cards/{cardnumber}")
@@ -66,12 +71,15 @@ public class CardManagement {
     }
 
     @PutMapping(value = "api/user/{username}/cards/default/{cardnumber}")
-    public @ResponseBody String setDefaultCard(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNo){
+    public ResponseEntity<ResponseMessage> setDefaultCard(@PathVariable(name = "username") String userName, @PathVariable(name = "cardnumber") String cardNo){
+        String retMessage = "";
         if(cardService.setDefaultCard(userName, cardNo)){
-            return messageSource.getMessage("card.default.success", null, Locale.US);
+            retMessage = messageSource.getMessage("card.default.success", null, Locale.US);
         }
         else{
-            return messageSource.getMessage("card.default.fail", null, Locale.US);
+            retMessage = messageSource.getMessage("card.default.fail", null, Locale.US);
         }
+
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 }

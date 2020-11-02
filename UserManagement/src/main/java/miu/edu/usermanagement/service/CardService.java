@@ -82,7 +82,7 @@ public class CardService implements ICardService {
     private Card mapCardDTOtoEntity(CardDTO cardDTO) {
         Card card = new Card();
         card.setCardNumber(cardDTO.getCardNumber());
-        card.setDefault(true);
+        card.setDefault(false);
         card.setExpiredDate(cardDTO.getExpiredDate());
         card.setName(cardDTO.getName());
         card.setCvv(cardDTO.getCvv());

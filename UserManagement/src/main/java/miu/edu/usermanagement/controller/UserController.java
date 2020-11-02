@@ -1,6 +1,7 @@
 package miu.edu.usermanagement.controller;
 
 import miu.edu.usermanagement.dto.*;
+import miu.edu.usermanagement.dto.response.ResponseMessage;
 import miu.edu.usermanagement.entity.User;
 import miu.edu.usermanagement.service.UserService;
 
@@ -68,58 +69,63 @@ public class UserController {
     }
 
     @PutMapping(value="api/users/{username}")
-    public @ResponseBody String updateUser(@PathVariable(name="username") String userName, @Valid @RequestBody UserDTO dtoUser){
-        String retMessage = "";
+    public ResponseEntity<ResponseMessage> updateUser(@PathVariable(name="username") String userName, @Valid @RequestBody UserDTO dtoUser){
+        String retMessage = "Failed while updating";
         if(userService.updateUserInfoByUsername(userName, dtoUser)){
             retMessage = messageSource.getMessage("user.update.success", new String[]{userName}, Locale.US);
         }
 //        else{
 //            retMessage = messageSource.getMessage("user.update.fail", new String[]{userName}, Locale.US);
 //        }
-        return retMessage;
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
     @PostMapping(value = "api/users/{username}/addresses")
-    public @ResponseBody ResponseEntity addNewUserAddress(@PathVariable(name = "username") String userName, @RequestBody AddressDTO dtoAddress){
+    public ResponseEntity<ResponseMessage> addNewUserAddress(@PathVariable(name = "username") String userName, @RequestBody AddressDTO dtoAddress){
+        String retMessage = "";
         if(userService.addAddressByUsername(userName, dtoAddress)){
-            return makeSuccessResponse(messageSource.getMessage("address.add.success", null, Locale.US));
+            retMessage = messageSource.getMessage("address.add.success", null, Locale.US);
         }
-        return null;
+
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
     @PutMapping(value = "/api/users/{username}/addresses/{addressId}")
-    public @ResponseBody String updateUserAddress(@PathVariable(name = "username") String userName,
+    public ResponseEntity<ResponseMessage> updateUserAddress(@PathVariable(name = "username") String userName,
                                                   @PathVariable(name = "addressId") Long addressId,
                                                   @RequestBody AddressDTO dtoAddress){
+        String retMessage = "";
         if(userService.updateAddressByUsername(userName, addressId, dtoAddress)){
-            return messageSource.getMessage("address.update.success", null, Locale.US);
+            retMessage = messageSource.getMessage("address.update.success", null, Locale.US);
         }
-        return null;
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
     @DeleteMapping(value = "api/users/{username}/addresses/{addressId}")
-    public @ResponseBody ResponseEntity removeUserAddress(@PathVariable(name = "username") String userName, @PathVariable(name = "addressId") Long addressId){
+    public ResponseEntity<ResponseMessage> removeUserAddress(@PathVariable(name = "username") String userName, @PathVariable(name = "addressId") Long addressId){
+        String retMessage = "";
         if(userService.removeAddressByUsername(userName, addressId)){
-            return makeSuccessResponse(messageSource.getMessage("address.remove.success", null, Locale.US));
+            retMessage = messageSource.getMessage("address.remove.success", null, Locale.US);
         }
-        return null;
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
     @PutMapping(value = "api/users/{username}/addresses/{addressId}/default")
-    public @ResponseBody ResponseEntity setDefaultAddress(@PathVariable(name = "username") String userName, @PathVariable(name = "addressId") Long addressId){
+    public ResponseEntity<ResponseMessage> setDefaultAddress(@PathVariable(name = "username") String userName, @PathVariable(name = "addressId") Long addressId){
+        String retMessage = "";
         if(userService.setDefaultAddress(userName, addressId)){
-            return makeSuccessResponse(messageSource.getMessage("address.default.success", null, Locale.US));
+            retMessage = messageSource.getMessage("address.default.success", null, Locale.US);
         }
-        return null;
+        return ResponseEntity.ok(ResponseMessage.builder().message(retMessage).build());
     }
 
-    private ResponseEntity makeSuccessResponse(String message) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", message);
-
-        return new ResponseEntity<>(body, HttpStatus.OK);
-    }
+//    private ResponseEntity makeSuccessResponse(String message) {
+//        Map<String, Object> body = new LinkedHashMap<>();
+//        body.put("timestamp", LocalDateTime.now());
+//        body.put("message", message);
+//
+//        return new ResponseEntity<>(body, HttpStatus.OK);
+//    }
 
     @GetMapping(value="api/users")
     public @ResponseBody List<UserDTO> listOfUsers(){
