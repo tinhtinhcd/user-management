@@ -19,6 +19,6 @@ public class Card extends BaseModel{
     private String cardNumber;
     private String name;
     private String cvv;
-    private Date expiredDate;
+    private String expiredDate;
     private boolean isDefault;
 }

@@ -50,6 +50,10 @@ public class CardService implements ICardService {
         return retMessage;
     }
 
+    private boolean validateCardExpiryDate(String expiryDate) {
+        return expiryDate.matches("^((0[1-9])|(1[0-2]))(\\d{2})$");//^((0[1-9])|(1[0-2]))\/(\d{2})$ --> MM/YY
+    }
+
     @Override
     public CardDTO getCardInfo(String curUser, String cardNumber) {
         Optional<User> user = userRepo.findUserByUsername(curUser);

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Date;
 
@@ -17,6 +18,7 @@ public class CardDTO {
     private String name;
     @Size(min=3, max=3, message = "{error.length.minmax}")
     private String cvv;
-    private Date expiredDate;
+    @Pattern(regexp= "^((0[1-9])|(1[0-2]))(\\d{2})$", message = "{error.expire.format}")
+    private String expiredDate;
     private boolean isDefault;
 }
