@@ -6,18 +6,21 @@ import miu.edu.usermanagement.entity.Card;
 import miu.edu.usermanagement.entity.Role;
 import miu.edu.usermanagement.entity.User;
 import miu.edu.usermanagement.exception.AddressNotFoundException;
+import miu.edu.usermanagement.exception.UserHasNoDefaultInfo;
 import miu.edu.usermanagement.exception.UsernameExistedException;
 import miu.edu.usermanagement.exception.UsernameNotFoundException;
 import miu.edu.usermanagement.repository.AddressRepo;
 import miu.edu.usermanagement.repository.UserRepo;
 import miu.edu.usermanagement.repository.RoleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,9 @@ public class UserService implements IUserService{
 //    private PasswordEncoder encoding;
     @Autowired
     private BCryptPasswordEncoder encoding;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Autowired
     public UserService(UserRepo userRepo, RoleRepo roleRepo, AddressRepo addressRepo){
@@ -50,7 +56,7 @@ public class UserService implements IUserService{
             mapNewUserDtoToEntity(newUser, userEntity,true);
             userEntity = userRepo.save(userEntity);
             //mapping user from entity to dto
-            dtoUser = mapUserEntityToDto(userEntity);
+            dtoUser = mapUserEntityToDto(userEntity, null, null);
         }
         else{
             throw new UsernameExistedException(newUser.getUsername());
@@ -66,7 +72,7 @@ public class UserService implements IUserService{
         User entityUser = null;
         if(userList.isPresent()){
             entityUser = userList.get();
-            dtoUser = mapUserEntityToDto(entityUser);
+            dtoUser = mapUserEntityToDto(entityUser, null, null);
         }
         else{
             throw new UsernameNotFoundException(userName);
@@ -90,7 +96,7 @@ public class UserService implements IUserService{
         dtoUser.setRoles(dtoRoles);
     }
 
-    private UserDTO mapUserEntityToDto(User entityUser) {
+    private UserDTO mapUserEntityToDto(User entityUser, Address defAddress, Card defCard) {
         UserDTO dtoUser = new UserDTO();
         if(entityUser.getId() != null) {
             dtoUser.setId(entityUser.getId());
@@ -106,19 +112,15 @@ public class UserService implements IUserService{
 
         //mapping addresses from entity to dto
         List<AddressDTO> lstAddrDTO = new ArrayList<>();
-        List<Address> lstAddr = entityUser.getLstAddress();
-        if(lstAddr != null) {
-            for (Address address : lstAddr) {
-                AddressDTO dtoAddr = new AddressDTO();
-                dtoAddr.setAddressId(address.getId());
-                dtoAddr.setHouseNumber(address.getHouseNumber());
-                dtoAddr.setStreet(address.getStreet());
-                dtoAddr.setCity(address.getCity());
-                dtoAddr.setState(address.getState());
-                dtoAddr.setZipcode(address.getZipcode());
-                dtoAddr.setCountry(address.getCountry());
-                dtoAddr.setDefaultAddress(address.isDefault());
-                lstAddrDTO.add(dtoAddr);
+        if(defAddress != null){
+            lstAddrDTO.add(mapAddressEntityToDto(defAddress));
+        }
+        else {
+            List<Address> lstAddr = entityUser.getLstAddress();
+            if (lstAddr != null) {
+                for (Address address : lstAddr) {
+                    lstAddrDTO.add(mapAddressEntityToDto(address));
+                }
             }
         }
         dtoUser.setAddresses(lstAddrDTO);
@@ -135,24 +137,46 @@ public class UserService implements IUserService{
         }
         dtoUser.setRoles(dtoRoles);
 
-        List<Card> listCards = entityUser.getListCards();
         List<CardDTO> dtoCards = new ArrayList<>();
-        if(listCards != null) {
-            for (Card card : listCards) {
-//                if (card.isDefault()) {
-                    CardDTO dtoCard = new CardDTO();
-                    dtoCard.setCardNumber(card.getCardNumber());
-                    dtoCard.setName(card.getName());
-                    dtoCard.setCvv(card.getCvv());
-                    dtoCard.setExpiredDate(card.getExpiredDate());
-                    dtoCard.setDefault(card.isDefault());
-                    dtoCards.add(dtoCard);
-//                }
+        if(defCard != null){
+            dtoCards.add(mapCardEntityToDto(defCard));
+        }
+        else {
+            List<Card> listCards = entityUser.getListCards();
+            if (listCards != null) {
+                for (Card card : listCards) {
+                    dtoCards.add(mapCardEntityToDto(card));
+                }
             }
         }
         dtoUser.setCards(dtoCards);
 
         return dtoUser;
+    }
+
+    private AddressDTO mapAddressEntityToDto(Address address){
+        AddressDTO dtoAddr = new AddressDTO();
+        dtoAddr.setAddressId(address.getId());
+        dtoAddr.setHouseNumber(address.getHouseNumber());
+        dtoAddr.setStreet(address.getStreet());
+        dtoAddr.setCity(address.getCity());
+        dtoAddr.setState(address.getState());
+        dtoAddr.setZipcode(address.getZipcode());
+        dtoAddr.setCountry(address.getCountry());
+        dtoAddr.setDefaultAddress(address.isDefault());
+
+        return dtoAddr;
+    }
+
+    private CardDTO mapCardEntityToDto(Card card){
+        CardDTO dtoCard = new CardDTO();
+        dtoCard.setCardNumber(card.getCardNumber());
+        dtoCard.setName(card.getName());
+        dtoCard.setCvv(card.getCvv());
+        dtoCard.setExpiredDate(card.getExpiredDate());
+        dtoCard.setDefault(card.isDefault());
+
+        return dtoCard;
     }
 
     //Mapping User object from DTO to Entity
@@ -349,7 +373,7 @@ public class UserService implements IUserService{
         if(listUser != null && listUser.size() != 0){
             for(User user : listUser){
                 UserDTO dtoUser = new UserDTO();
-                dtoUser = mapUserEntityToDto(user);
+                dtoUser = mapUserEntityToDto(user, null, null);
                 retListUser.add(dtoUser);
             }
         }
@@ -365,12 +389,60 @@ public class UserService implements IUserService{
         if(listUser != null && listUser.size() != 0){
             for(User user : listUser){
                 UserDTO dtoUser = new UserDTO();
-                dtoUser = mapUserEntityToDto(user);
+                dtoUser = mapUserEntityToDto(user, null, null);
                 retListUser.add(dtoUser);
             }
         }
 
         return retListUser;
+    }
+
+    @Override
+    public UserDTO queryDefaultInfoByUserName(String userName) {
+        Optional<User> userList = userRepo.findUserByUsername(userName);
+        UserDTO dtoUser = null;
+        User entityUser = null;
+        Address defAddr = null;
+        Card defCard = null;
+
+        if(userList.isPresent()){
+            entityUser = userList.get();
+            //checking default address
+            List<Address> listAddr = entityUser.getLstAddress();
+            if(listAddr == null || listAddr.size() == 0){
+                throw new UserHasNoDefaultInfo(userName, messageSource.getMessage("user.address.default", null, Locale.US));
+            }
+            else{
+                Optional<Address> opAddr = listAddr.stream().filter(a -> a.isDefault() == true).findFirst();
+                if(opAddr.isPresent()){
+                    defAddr = opAddr.get();
+                }
+                else{
+                    throw new UserHasNoDefaultInfo(userName, messageSource.getMessage("user.address.default", null, Locale.US));
+                }
+            }
+
+            //checking default card
+            List<Card> listCard = entityUser.getListCards();
+            if(listCard == null || listCard.size() == 0){
+                throw new UserHasNoDefaultInfo(userName, messageSource.getMessage("user.card.default", null, Locale.US));
+            }
+            else{
+                Optional<Card> opCard = listCard.stream().filter(a -> a.isDefault() == true).findFirst();
+                if(opCard.isPresent()){
+                    defCard = opCard.get();
+                }
+                else{
+                    throw new UserHasNoDefaultInfo(userName, messageSource.getMessage("user.card.default", null, Locale.US));
+                }
+            }
+
+            dtoUser = mapUserEntityToDto(entityUser, defAddr, defCard);
+        }
+        else{
+            throw new UsernameNotFoundException(userName);
+        }
+        return dtoUser;
     }
 
     @Override

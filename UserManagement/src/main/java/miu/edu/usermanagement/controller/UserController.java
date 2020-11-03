@@ -68,6 +68,14 @@ public class UserController {
         return dtoUser;
     }
 
+    //If an user has default address and default card, his default info are returned
+    @GetMapping(value="api/users/{username}/default")
+    public @ResponseBody UserDTO getBasicInfoByUsername(@PathVariable(name="username") String userName){
+        UserDTO dtoUser = userService.queryDefaultInfoByUserName(userName);
+
+        return dtoUser;
+    }
+
     @PutMapping(value="api/users/{username}")
     public ResponseEntity<ResponseMessage> updateUser(@PathVariable(name="username") String userName, @Valid @RequestBody UserDTO dtoUser){
         String retMessage = "Failed while updating";

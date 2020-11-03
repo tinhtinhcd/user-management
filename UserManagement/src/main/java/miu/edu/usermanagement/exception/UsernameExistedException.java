@@ -15,6 +15,6 @@ public class UsernameExistedException extends RuntimeException {// Throwable {
 
     public UsernameExistedException(@NotNull @Size(max = 10, message = "{error.username.length}") String username) {
         //super(messageSrc.getMessage("user.new.fail", new String[]{username}, Locale.US));
-        super(String.format("Advice: The username %s existed", username));
+        super(String.format("The username %s existed", username));
     }
 }

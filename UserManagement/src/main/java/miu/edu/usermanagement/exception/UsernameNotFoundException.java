@@ -7,6 +7,6 @@ public class UsernameNotFoundException extends RuntimeException {
 
     public UsernameNotFoundException(String username) {
         //super(messageSrc.getMessage("user.new.fail", new String[]{username}, Locale.US));
-        super(String.format("Advice: The username %s doesn't exist", username));
+        super(String.format("The username %s doesn't exist", username));
     }
 }
