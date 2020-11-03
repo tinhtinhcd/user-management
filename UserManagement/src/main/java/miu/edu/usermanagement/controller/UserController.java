@@ -70,10 +70,8 @@ public class UserController {
 
     //If an user has default address and default card, his default info are returned
     @GetMapping(value="api/users/{username}/default")
-    public @ResponseBody UserDTO getBasicInfoByUsername(@PathVariable(name="username") String userName){
-        UserDTO dtoUser = userService.queryDefaultInfoByUserName(userName);
-
-        return dtoUser;
+    public @ResponseBody PaymentDTO getBasicInfoByUsername(@PathVariable(name="username") String userName){
+        return userService.queryDefaultInfoByUserName(userName);
     }
 
     @PutMapping(value="api/users/{username}")

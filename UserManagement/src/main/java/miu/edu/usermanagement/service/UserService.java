@@ -398,9 +398,9 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public UserDTO queryDefaultInfoByUserName(String userName) {
+    public PaymentDTO queryDefaultInfoByUserName(String userName) {
         Optional<User> userList = userRepo.findUserByUsername(userName);
-        UserDTO dtoUser = null;
+
         User entityUser = null;
         Address defAddr = null;
         Card defCard = null;
@@ -437,12 +437,23 @@ public class UserService implements IUserService{
                 }
             }
 
-            dtoUser = mapUserEntityToDto(entityUser, defAddr, defCard);
+//            dtoUser = mapUserEntityToDto(entityUser, defAddr, defCard);
+
         }
         else{
             throw new UsernameNotFoundException(userName);
         }
-        return dtoUser;
+
+        PaymentDTO dtoPayment = new PaymentDTO();
+        List<AddressDTO> listAddressDTO = new ArrayList<AddressDTO>();
+        listAddressDTO.add(mapAddressEntityToDto(defAddr));
+        dtoPayment.setAddresses(listAddressDTO);
+
+        List<CardDTO> listCardDTO = new ArrayList<CardDTO>();
+        listCardDTO.add(mapCardEntityToDto(defCard));
+        dtoPayment.setCards(listCardDTO);
+
+        return dtoPayment;
     }
 
     @Override
