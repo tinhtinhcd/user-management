@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class UserService implements IUserService{
     private UserRepo userRepo;
     private RoleRepo roleRepo;
     private AddressRepo addressRepo;
+    private RestTemplate restTemplate;
 
 //    private PasswordEncoder encoding;
     @Autowired
@@ -39,10 +41,11 @@ public class UserService implements IUserService{
     private MessageSource messageSource;
 
     @Autowired
-    public UserService(UserRepo userRepo, RoleRepo roleRepo, AddressRepo addressRepo){
+    public UserService(UserRepo userRepo, RoleRepo roleRepo, AddressRepo addressRepo, RestTemplate restTemplate){
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.addressRepo = addressRepo;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -54,6 +57,8 @@ public class UserService implements IUserService{
         if(!user.isPresent()) {
             User userEntity = new User();
             mapNewUserDtoToEntity(newUser, userEntity,true);
+            //if new user has Vendor role, call the deposit API
+//            restTemplate.getForObject(configValue.getUserUrl()+"/user/"+name, User.class);
             userEntity = userRepo.save(userEntity);
             //mapping user from entity to dto
             dtoUser = mapUserEntityToDto(userEntity, null, null);
