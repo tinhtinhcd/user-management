@@ -1,16 +1,19 @@
 package miu.edu.usermanagement.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-@Data
+//@Data
+//@AllArgsConstructor
+//@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO extends UserIdDTO {
@@ -24,7 +27,7 @@ public class UserDTO extends UserIdDTO {
     private String lastName;
     @Email(regexp = ".+@.+\\..+", message = "{error.email.format}")
     private String email;
-    @Pattern(regexp= "\\(\\d{3}\\)[- .]?\\d{3}-\\d{4}", message = "{error.phone.format}")//"^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$")
+    @Pattern(regexp= "d{10}", message = "{error.phone.format}")// "\\(\\d{3}\\)[- .]?\\d{3}-\\d{4}" //"^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$")
     private String phone;
     private boolean enable;
 
