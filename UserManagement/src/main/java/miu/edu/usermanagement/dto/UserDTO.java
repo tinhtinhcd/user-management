@@ -19,7 +19,7 @@ import java.util.List;
 public class UserDTO extends UserIdDTO {
 
     @Column(nullable = true)
-    @Size(max=10, message = "{error.length.max}")
+    @Size(max=20, message = "{error.length.max}")
     private String username;
     @Size(max=20, message = "{error.length.max}")
     private String firstName;
@@ -27,7 +27,7 @@ public class UserDTO extends UserIdDTO {
     private String lastName;
     @Email(regexp = ".+@.+\\..+", message = "{error.email.format}")
     private String email;
-    @Pattern(regexp= "d{10}", message = "{error.phone.format}")// "\\(\\d{3}\\)[- .]?\\d{3}-\\d{4}" //"^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$")
+    @Pattern(regexp= "\\d{10}", message = "{error.phone.format}")// "\\(\\d{3}\\)[- .]?\\d{3}-\\d{4}" //"^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$")
     private String phone;
     private boolean enable;
 
