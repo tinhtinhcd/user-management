@@ -516,7 +516,7 @@ public class UserService implements IUserService{
                 //update address info
                 Address addr = opAddr.get();
                 addr.setHouseNumber(dtoAddress.getHouseNumber());
-                addr.setHouseNumber(dtoAddress.getStreet());
+                addr.setStreet(dtoAddress.getStreet());
                 addr.setCity(dtoAddress.getCity());
                 addr.setState(dtoAddress.getState());
                 addr.setZipcode(dtoAddress.getZipcode());
